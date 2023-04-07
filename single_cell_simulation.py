@@ -1,3 +1,30 @@
+'''
+* Jean-Louis Marin 2023 - April.
+* Single Cell Simulation - Called Greeblies. 
+* This program simulates the behavior of a single cell organism.
+* Greens photoplancton organisms are the primary producers of the ecosystem. They don't die of starvation, they have constant light, but they can be eaten by predators. 
+* Browns are the primary consumers of the ecosystem. They eat greens and die of starvation. And are the primary food source for omnivores.
+* Yellows are the secondary consumers of the ecosystem. They eat greens and browns and die of starvation. And are the primary food source for carnivores.
+* Reds are the tertiary consumers of the ecosystem. They eat yellows and die of starvation.
+* The variables to adjust are the number of organisms, the speed of the organisms, and the light intensity, and starvation counter.
+* The organisms are randomly placed on the screen and move randomly.
+* The organisms are drawn on the screen and the number of organisms of each type is displayed. -- BROKEN --
+* The organisms are stored in a database. not ready yet. the information is dumped but needs ferter refinement.
+* To Do:
+* 1. Add a GUI to adjust the number of organisms, the speed of the organisms, and the light intensity.
+* 2. Add a GUI to display the number of organisms of each type.
+* 3. create a record of each even for each organism in the simulation in the database.
+* 4. Hook up the database to BI reporting dashboard. for stats at the of the simulation.
+* 5. create various hooks in the code to link exteral ML or AI to evolve the organisms' behavior each generation of the game.
+* 6. Move the simulation to cloud hosted server with a web front end.
+* 7. Add a GUI to adjust the number of organisms, the speed of the organisms, and the light intensity.
+* 8. increase the model to gargantuan proportions for the simulation. for multiple people to interact with. 
+
+** - baseline code established = April 7th 2023. 
+
+'''
+
+
 import pygame
 import random
 from pygame.locals import *
@@ -226,6 +253,7 @@ def handle_green_red_collision(organism1, organism2):
     pass
     
 def handle_red_brown_collision(organism1, organism2):
+    '''
     if organism1.color == RED:
         all_sprites.remove(organism2)
         organism1.food_count += 1
@@ -242,7 +270,7 @@ def handle_red_brown_collision(organism1, organism2):
             update_id_counter()
             all_sprites.add(Organism(RED, organism2.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
             organism2.food_count = 0
-
+    '''
 def handle_red_yellow_collision(organism1, organism2):
     if organism1.color == RED:
         all_sprites.remove(organism2)
@@ -492,20 +520,20 @@ all_sprites = pygame.sprite.Group()
 organisms_data = [
     {"color": GREEN, "speed": speeds[0], "width": 2, "height": 2, "starvation": 6000},
     {"color": DARK_GREEN, "speed": speeds[1] , "width": 3, "height": 3, "starvation": 6000},
-    {"color": BROWN, "speed": speeds[2], "width": 3, "height": 3, "starvation": 1500},
-    {"color": YELLOW, "speed": speeds[3],   "width": 5, "height": 5, "starvation": 1000},
-    {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 750}
+    {"color": BROWN, "speed": speeds[3], "width": 3, "height": 3, "starvation": 2000},
+    {"color": YELLOW, "speed": speeds[2],   "width": 5, "height": 5, "starvation": 1000},
+    {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 850}
 ]
 # thsi function is used to create the starting organisms
 for organism_data in organisms_data:
     if organism_data["color"] == GREEN:
-        num_green = 50
+        num_green = 100
     elif organism_data["color"] == BROWN:
-        num_brown = 50
+        num_brown = 75
     elif organism_data["color"] == YELLOW:
         num_yellow = 30
     elif organism_data["color"] == RED:
-        num_red = 4
+        num_red = 6
     
     for _ in range(num_green if organism_data["color"] == GREEN else
                    num_brown if organism_data["color"] == BROWN else
