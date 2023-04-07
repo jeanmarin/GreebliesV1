@@ -1,0 +1,600 @@
+import pygame
+import random
+from pygame.locals import *
+import sys
+import time
+import math
+import pygame_gui
+import sqlite3
+import os
+#import tkinter as tk
+from pygame.locals import *
+from pygame_gui import UIManager
+#from tkinter_pygame import PygameDisplay
+PRINT_ORGANISM_COORDS = False
+
+# Set up the screen
+SCREEN_WIDTH = 910
+SCREEN_HEIGHT = 750
+GRID_WIDTH = 750
+GRID_HEIGHT = 750
+
+# Initialize counter variable
+organism_count = 0
+# Initialize counter variable
+id_counter = 0
+
+# Define detection distance for predator organisms
+detection_distance = 10
+
+# Delete the database file if it exists
+if os.path.exists("organism_data.db"):
+    os.remove("organism_data.db")
+
+# Connect to the database
+conn = sqlite3.connect("organism_data.db")
+c = conn.cursor()
+
+# Create a table to store the organism data
+# ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
+
+
+c.execute('''CREATE TABLE organisms
+             (id INT,
+              color TEXT,
+              speed INT, 
+              x INT,
+              y INT,
+              width INT,
+              height INT,
+              lifespan INT)''')
+
+
+
+'''
+To do:
+
+'''
+# Initialize Pygame
+pygame.init()
+
+# Initialize font module
+pygame.font.init()
+
+pygame.display.set_caption("Single Cell Simulation")
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Create a clock to keep track of time
+clock = pygame.time.Clock()
+
+# Define a font and render the text
+font = pygame.font.SysFont(None, 20)
+
+speeds = [1, 1, 7, 5, 10]
+light_intensity = 1
+num_green = 0
+num_brown = 0
+num_yellow = 0
+num_red = 0
+
+# Colors
+GREEN = (0, 255, 0)
+DARK_GREEN = (0, 100, 0)
+BROWN = (139, 69, 19)
+YELLOW = (255, 255, 0)
+RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+GRAY = (128, 128, 128)
+
+
+# Define the global function
+def print_organism_coords(organism, toggle):
+    if toggle:
+        print(f"Organism coordinates: x={organism.rect.x}, y={organism.rect.y}")
+
+#
+def random_movement_vector(speed):
+    direction = random.uniform(0, 2 * math.pi)
+    dx = speed * math.cos(direction)
+    dy = speed * math.sin(direction)
+    return dx, dy
+
+# Collision handlers
+def handle_green_green_collision(organism1, organism2):
+    #all_sprites.remove(organism1, organism2)
+    # Turn the parent organisms dark green Organism 
+    organism1.set_color(DARK_GREEN)
+    organism1.set_size(3) 
+    organism2.set_color(DARK_GREEN)
+    organism2.set_size(3)
+    organism1.set_coor(random.randint(0, 740), random.randint(0, 740))
+    organism2.set_coor(random.randint(0, 740), random.randint(0, 740))
+
+
+    # Reproduction: Create a new green organism
+    update_id_counter()
+    new_organism = Organism(GREEN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 2 , 2, 6000, id_counter)
+    all_sprites.add(new_organism)
+    
+
+def handle_brown_brown_collision(organism1, organism2):
+    pass
+      
+def handle_yellow_yellow_collision(organism1, organism2):
+    pass
+
+def handle_red_red_collision(organism1, organism2):
+    pass
+
+def handle_green_brown_collision(organism1, organism2):
+    if organism1.color == BROWN:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 3:
+            update_id_counter()
+            all_sprites.add(Organism(BROWN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            organism1.food_count = 0
+               
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 3:
+            update_id_counter()
+            all_sprites.add(Organism(BROWN, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            organism2.food_count = 0
+
+def handle_dark_green_brown_collision(organism1, organism2):
+    if organism1.color == BROWN:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 3:
+            update_id_counter()
+            all_sprites.add(Organism(BROWN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            organism1.food_count = 0
+               
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 3:
+            update_id_counter()
+            all_sprites.add(Organism(BROWN, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            organism2.food_count = 0
+
+def handle_green_yellow_collision(organism1, organism2):
+    if organism1.color == YELLOW:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            organism1.food_count = 0
+               
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            organism2.food_count = 0
+
+def handle_brown_yellow_collision(organism1, organism2):
+    if organism1.color == YELLOW:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            organism1.food_count = 0
+               
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            organism2.food_count = 0
+
+def handle_dark_green_yellow_collision(organism1, organism2):
+    if organism1.color == YELLOW:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            organism1.food_count = 0
+               
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            organism2.food_count = 0
+
+def handle_green_red_collision(organism1, organism2):
+    pass
+    
+def handle_red_brown_collision(organism1, organism2):
+    if organism1.color == RED:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
+            organism1.food_count = 0   
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(RED, organism2.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
+            organism2.food_count = 0
+
+def handle_red_yellow_collision(organism1, organism2):
+    if organism1.color == RED:
+        all_sprites.remove(organism2)
+        organism1.food_count += 1
+        organism1.hasNotEaten = 0 #resest starvation counter
+        if organism1.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
+            organism1.food_count = 0   
+    else :
+        all_sprites.remove(organism1)
+        organism2.food_count += 1
+        organism2.hasNotEaten = 0 #resest starvation counter
+        if organism2.food_count >= 5:
+            update_id_counter()
+            all_sprites.add(Organism(RED, organism2.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
+            organism2.food_count = 0
+
+def update_id_counter():
+    global id_counter
+    id_counter += 1
+
+# Organism class
+class Organism(pygame.sprite.Sprite):
+    
+    # This class represents an organism. It derives from the "Sprite" class in Pygame.
+    def __init__(self, color, speed, x, y, width, height, starvation_count, OrganismID):
+        super().__init__()
+        self.image = pygame.Surface([width, height])
+        self.image.fill(color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.width = width
+        self.height = height
+        self.speed = speed
+        self.color = color
+        self.organismID = OrganismID
+        self.food_count = 0  # New variable to keep track of how much food a red organism has eaten
+        self.light_exposure_count = 0  # New variable to keep track of how much light a green / darkGreen organism has been exposed to
+        self.hasNotEaten = 0 # it has not eaten anything yet
+        self.starvation_count = starvation_count  # variable max value of how long an organism can go without eating
+        
+        global id_counter
+        self.id = id_counter
+        update_id_counter()
+    
+    # Update the organism's position        
+    def update(self, all_sprites):
+        
+        # Generate a random movement vector with a magnitude equal to the organism's speed
+        magnitude = self.speed
+
+        # Otherwise, generate a random direction
+        direction = random.uniform(0, 2 * math.pi)
+        dx = magnitude * math.cos(direction)
+        dy = magnitude * math.sin(direction)
+
+        # Add the movement vector to the current position to obtain the new position
+        new_x = self.rect.x + dx
+        new_y = self.rect.y + dy
+
+        # Check if the new position is within the screen boundaries and update the position accordingly
+        if 0 <= new_x <= 740:
+            self.rect.x = new_x
+        if 0 <= new_y <= 740:
+            self.rect.y = new_y
+                
+        # Check for light exposure count. If the organism is exposed to light, it will reproduce
+        if self.color == GREEN or self.color == DARK_GREEN:
+            if self.light_exposure_count >= 550:    
+                update_id_counter()    
+                all_sprites.add(Organism(GREEN, self.speed, random.randint(0, 740), random.randint(0, 740), 2, 2, 6000, id_counter))
+                self.light_exposure_count = 0
+            else:
+                self.light_exposure_count += light_intensity
+
+        # Checks if the organism has eaten something. If it has not and reaches 15 seconds, it will die
+        # Remove the sprite if it hasn't eaten in a while
+        if self.hasNotEaten >= self.starvation_count:
+            all_sprites.remove(self)
+        else:
+            self.hasNotEaten += 1
+
+        # Check for collisions with other organisms
+        collisions = pygame.sprite.spritecollide(self, all_sprites, False)
+        for collision in collisions:
+            if collision != self:
+                # Define the collision handlers for each type of organism
+                collision_handlers = {
+                    (GREEN, GREEN): handle_green_green_collision,
+                    (BROWN, BROWN): handle_brown_brown_collision,
+                    (YELLOW, YELLOW): handle_yellow_yellow_collision,
+                    (RED, RED): handle_red_red_collision,
+                    (GREEN, BROWN): handle_green_brown_collision,
+                    (DARK_GREEN, BROWN): handle_dark_green_brown_collision,
+                    (GREEN, YELLOW): handle_green_yellow_collision,
+                    (YELLOW, GREEN): handle_green_yellow_collision,
+                    (DARK_GREEN, YELLOW): handle_dark_green_yellow_collision,
+                    (YELLOW, DARK_GREEN): handle_dark_green_yellow_collision,
+                    (BROWN, YELLOW): handle_brown_yellow_collision,
+                    (YELLOW, BROWN): handle_brown_yellow_collision,
+                    (GREEN, RED): handle_green_red_collision,
+                    (RED, YELLOW): handle_red_yellow_collision,
+                    (BROWN, RED): handle_red_brown_collision
+                }
+
+                # Call the appropriate collision handler based on the colors of the colliding organisms
+                handler_key = tuple(sorted([self.color, collision.color]))
+                if handler_key in collision_handlers:
+                    collision_handlers[handler_key](self, collision)
+
+    def set_color(self, color):
+        self.color = color
+        self.image.fill(color)
+    def set_size(self, size):
+        self.image = pygame.Surface([size, size])
+        self.rect = self.image.get_rect()
+        self.image.fill(self.color)
+    def set_coor(self,new_x, new_y):
+        self.rect.x = new_x
+        self.rect.y = new_y
+        self.image.fill(self.color)
+
+# manager = pygame_gui.UIManager((WINDOW_WIDTH, WINDOW_HEIGHT))
+
+# Create a UI container and add it to the UI manager
+container = pygame_gui.elements.UIContainer(
+        relative_rect=pygame.Rect((0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT)),
+        manager=manager
+    )
+manager.add_ui_element(container)
+
+# Define the input variables for the text entry boxes  
+green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 120), (100, 30)), manager=manager, container=container)
+container.add_ui_element(green_input)
+
+# Add the other text entry boxes to the container
+dark_green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 140), (100, 30)), manager=manager, container=container)
+container.add_ui_element(dark_green_input)
+brown_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 160), (100, 30)), manager=manager, container=container)
+container.add_ui_element(brown_input)
+yellow_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 180), (100, 30)), manager=manager, container=container)
+container.add_ui_element(yellow_input)
+red_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 200), (100, 30)), manager=manager, container=container)
+container.add_ui_element(red_input)
+light_intensity_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 260), (100, 30)), manager=manager, container=container)
+container.add_ui_element(light_intensity_input)
+
+'''# Add the text entry elements to the container
+container.add_ui_element(green_input)
+container.add_ui_element(dark_green_input)
+container.add_ui_element(brown_input)
+container.add_ui_element(yellow_input)
+container.add_ui_element(red_input)
+container.add_ui_element(light_intensity_input)'''
+
+# Define a function to handle the text entry finished event
+def handle_text_entry_finished(event):
+    if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
+        update_starvation_variables()
+
+# Register the listener for the text entry finished event
+pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
+
+# Define a function to handle the text entry finished event
+def handle_text_entry_finished(event):
+    if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
+        update_starvation_variables()
+
+# Register the listener for the text entry finished event
+pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
+
+# Create a text input field in the gray bar area
+# starvation_input.set_allowed_characters('0123456789')
+
+# Create the buttons
+class Button:
+    def __init__(self, color, x, y, width, height, text=None):
+        self.color = color
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
+        if self.text:
+            font = pygame.font.Font(None, 20)
+            text = font.render(self.text, 1, WHITE)
+            screen.blit(text, (self.x + (self.width // 2 - text.get_width() // 2), self.y + (self.height // 2 - text.get_height() // 2)))
+
+    def is_mouse_over(self, pos):
+        return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
+
+# Define a function to parse and update the starvation variables
+def update_starvation_variables():
+    try:
+        green_starvation = int(green_input.get_text())
+        dark_green_starvation = int(dark_green_input.get_text())
+        brown_starvation = int(brown_input.get_text())
+        yellow_starvation = int(yellow_input.get_text())
+        red_starvation = int(red_input.get_text())
+        light_intensity = int(light_intensity_input.get_text())
+
+        for organism in all_sprites:
+            if organism.color == "GREEN":
+                organism.starvation_count = green_starvation
+            elif organism.color == "DARK_GREEN":
+                organism.starvation_count = dark_green_starvation
+            elif organism.color == "BROWN":
+                organism.starvation_count = brown_starvation
+            elif organism.color == "YELLOW":
+                organism.starvation_count = yellow_starvation
+            elif organism.color == "RED":
+                organism.starvation_count = red_starvation
+            elif organism.color == "LIGHT":
+                organism.starvation_count = light_intensity
+    except ValueError:
+        print("Invalid input")
+
+# Set up the gray bar and buttons
+button_height = 30
+button_width = 70
+button_x = GRID_WIDTH + 30
+start_button_y = 30
+stop_button_y = 70
+
+
+# postion the button objects.
+start_button_rect = pygame.Rect(button_x, start_button_y, button_width, button_height)
+stop_button_rect = pygame.Rect(button_x, stop_button_y, button_width, button_height)
+
+# Create start and stop buttons
+start_button = Button(GREEN, button_x, start_button_y, button_width, button_height, 'Start')
+stop_button = Button(RED, button_x, stop_button_y, button_width, button_height, 'Stop')
+
+
+start_button.draw(screen)
+stop_button.draw(screen)
+
+# Initialize the simulation
+all_sprites = pygame.sprite.Group()
+
+organisms_data = [
+    {"color": GREEN, "speed": speeds[0], "width": 2, "height": 2, "starvation": 6000},
+    {"color": DARK_GREEN, "speed": speeds[1] , "width": 3, "height": 3, "starvation": 6000},
+    {"color": BROWN, "speed": speeds[2], "width": 3, "height": 3, "starvation": 1500},
+    {"color": YELLOW, "speed": speeds[3],   "width": 5, "height": 5, "starvation": 1000},
+    {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 750}
+]
+# thsi function is used to create the starting organisms
+for organism_data in organisms_data:
+    if organism_data["color"] == GREEN:
+        num_green = 50
+    elif organism_data["color"] == BROWN:
+        num_brown = 50
+    elif organism_data["color"] == YELLOW:
+        num_yellow = 30
+    elif organism_data["color"] == RED:
+        num_red = 4
+    
+    for _ in range(num_green if organism_data["color"] == GREEN else
+                   num_brown if organism_data["color"] == BROWN else
+                   num_yellow if organism_data["color"] == YELLOW else
+                   num_red if organism_data["color"] == RED else 0):
+        update_id_counter()
+        all_sprites.add(Organism(organism_data["color"], organism_data["speed"], random.randint(0, 740), random.randint(0, 740), organism_data["width"], \
+                                  organism_data["height"], organism_data["starvation"], id_counter))
+        num_sprites = len(all_sprites)
+        all_organisms_text = font.render(f"Organism Count: {num_sprites}", True, WHITE)
+
+def convert_color_to_label(color):
+    color_dict = {(0, 255, 0): "GREEN", (0, 100, 0): "DARK_GREEN", (139, 69, 19): "BROWN", 
+                  (255, 255, 0): "YELLOW", (255, 0, 0): "RED", (255, 255, 255): "WHITE",
+                  (128, 128, 128): "GRAY"}
+    for key, value in color_dict.items():
+        if key == color:
+            return value
+    return None
+
+# Game loop
+running = True
+started = False
+
+
+while running:
+    time_delta = clock.tick(60) / 1000.0  # Update the clock and get the time delta
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            if start_button.is_mouse_over(mouse_pos):
+                started = True
+            if stop_button.is_mouse_over(mouse_pos):
+                started = False
+        elif event.type == pygame.USEREVENT:
+            if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                if event.ui_element == green_input:
+                    num_green = int(green_input.get_text())
+                elif event.ui_element == dark_green_input:
+                    num_dark_green = int(dark_green_input.get_text())
+                elif event.ui_element == brown_input:
+                    num_brown = int(brown_input.get_text())
+                elif event.ui_element == yellow_input:
+                    num_yellow = int(yellow_input.get_text())
+                elif event.ui_element == red_input:
+                    num_red = int(red_input.get_text())
+            manager.process_events(event)
+    # # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
+    if started:
+        all_sprites.update(all_sprites)
+    for organism in all_sprites:
+        color_label = convert_color_to_label(organism.color)
+        data = (organism.id, color_label, organism.speed, organism.rect.x, organism.rect.y, organism.width, organism.height, organism.starvation_count)
+        c.execute("INSERT INTO organisms VALUES (?, ?, ?, ?, ?, ?, ?, ?)", data)
+    conn.commit()          
+
+    screen.fill((0, 0, 0))
+    screen.blit(screen, (0, 0))
+
+    if len(all_sprites) == 0: # Stop the game if there are no more sprites
+        started = False
+        running = False
+        text_surface = font.render(f"Total Organisms: Game Over!", True, WHITE)
+
+    # Draw the gray bar
+    gray_bar_rect = pygame.Rect(GRID_WIDTH, 0, SCREEN_WIDTH - GRID_WIDTH, SCREEN_HEIGHT)
+    pygame.draw.rect(screen, GRAY, gray_bar_rect)
+
+    # Update and draw the UI elements
+    manager.update(time_delta)
+    manager.draw_ui(screen)
+
+    # Draw the sprites and buttons
+    all_sprites.draw(screen)
+    start_button.draw(screen)
+    stop_button.draw(screen)
+    screen.blit(all_organisms_text, (760, 720))
+
+    # Update the count of organisms
+    num_sprites = len(all_sprites)
+    all_organisms_text = font.render(f"Organism Count: {num_sprites}", True, WHITE)
+    text_surface = font.render(f"Total Organisms: {num_sprites}", True, WHITE)
+
+    # Update the screen
+    pygame.display.flip()
+
+conn.close()
+pygame.quit()
+sys.exit()
