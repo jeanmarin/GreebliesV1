@@ -5,8 +5,10 @@ A little simulation game to see the relationships of different one cell organism
 ***  Jean-Louis Marin 2023 - April. ***
 ***************************************
 
+***************************************
 Single Cell Simulation - Greeblies. 
 Version 1.0
+***************************************
 
 This program simulates the behavior of a single cell organism.
 Greens photoplancton organisms are the primary producers of the ecosystem. They don't die of starvation, they have constant light, but they can be eaten by predators. 
@@ -20,6 +22,7 @@ The organisms are drawn on the screen and the number of organisms of each type i
 The organisms are stored in a database. not ready yet. the information is dumped but needs ferter refinement.
 
 To Do:
+******
 1. Add a GUI to adjust the number of organisms, the speed of the organisms, and the light intensity.
 2. Add a GUI to display the number of organisms of each type.
 3. create a record of each even for each organism in the simulation in the database.
