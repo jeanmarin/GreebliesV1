@@ -25,7 +25,7 @@
 '''
 
 # import tkinter as tk
-import pygame
+import pygame as pg
 import os
 from PIL import Image
 import random
@@ -40,11 +40,11 @@ from pygame.locals import *
 from pygame_gui import UIManager
 
 
-# Initialize Pygame
-pygame.init()
+# Initialize pg
+pg.init()
 
 # Initialize font module
-pygame.font.init()
+pg.font.init()
 
 
 #from tkinter_pygame import PygameDisplay
@@ -63,6 +63,9 @@ id_counter = 0
 
 # Define detection distance for predator organisms
 detection_distance = 10
+
+# the global start variable
+started = False
 
 # Delete the database file if it exists
 if os.path.exists("organism_data.db"):
@@ -87,15 +90,17 @@ c.execute('''CREATE TABLE organisms
 
 
 # display screen configuration
-pygame.display.set_caption("Single Cell Simulation")
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pg.display.set_caption("Single Cell Simulation")
+screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+COLOR_INACTIVE = pg.Color('lightskyblue3')
+COLOR_ACTIVE = pg.Color('dodgerblue2')
 manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Create a clock to keep track of time
-clock = pygame.time.Clock()
+clock = pg.time.Clock()
 
 # Define a font and render the text
-font = pygame.font.SysFont(None, 20)
+font = pg.font.SysFont(None, 20)
 
 speeds = [1, 1, 7, 5, 10]
 light_intensity = 1
@@ -295,13 +300,103 @@ def update_id_counter():
     global id_counter
     id_counter += 1
 
+class InputBox:
+
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pg.Rect(x, y, w, h)
+        self.color = COLOR_INACTIVE
+        self.text = text
+        self.txt_surface = font.render(text, True, self.color)
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            # If the user clicked on the input_box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
+        if event.type == pg.KEYDOWN:
+            if self.active:
+                if event.key == pg.K_RETURN:
+                    print(self.text)
+                    self.text = ''
+                elif event.key == pg.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = font.render(self.text, True, self.color)
+
+    def update(self):
+        # Resize the box if the text is too long.
+        width = max(200, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pg.draw.rect(screen, self.color, self.rect, 2)
+
+# def __init__(self, color, x, y, width, height, text=None):
+class Button:
+    def __init__(self, x, y, w, h, text='', color=(255, 255, 255), font=None):
+        self.rect = pg.Rect(x, y, w, h)
+        self.color = color
+        self.text = text
+        self.font = font if font else pg.font.Font(None, 32)
+         # Use black for the initial text color since the hover state is initially False
+        self.txt_surface = self.font.render(text, True, "black")
+        self.hover = False
+        #global started
+
+    def handle_event(self, event):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                # Perform the desired action
+                print(self.text)
+                if self.text == "Start":
+                    print("start")
+                    global started
+                    started = True
+                elif self.text == "Stop":
+                    print("stop")
+                    # global started
+                    started = False
+                
+
+    def update(self, mouse_pos):
+        if self.rect.collidepoint(mouse_pos):
+            self.hover = True
+        else:
+            self.hover = False
+# the if than statement inline in the parameter allows for conditional behavior. The button border is red unit you hover over it then it turns white
+    def draw(self, screen):
+        # Draw the filled rectangle with the appropriate color based on hover state
+        pg.draw.rect(screen, "lightskyblue3" if self.hover else "dodgerblue2", self.rect)
+    
+        # Draw the border with the appropriate color based on hover state
+        pg.draw.rect(screen, self.color if self.hover else "red", self.rect, 2)
+    
+        # Render the text with the appropriate color based on hover state
+        self.txt_surface = self.font.render(self.text, True, "white" if self.hover else "black")
+    
+        screen.blit(self.txt_surface, (self.rect.x + (self.rect.w - self.txt_surface.get_width()) // 2,
+                                        self.rect.y + (self.rect.h - self.txt_surface.get_height()) // 2))
+
+
+
 # Organism class
-class Organism(pygame.sprite.Sprite):
+class Organism(pg.sprite.Sprite):
     
     # This class represents an organism. It derives from the "Sprite" class in Pygame.
     def __init__(self, color, speed, x, y, width, height, starvation_count, OrganismID):
         super().__init__()
-        self.image = pygame.Surface([width, height])
+        self.image = pg.Surface([width, height])
         self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -358,7 +453,7 @@ class Organism(pygame.sprite.Sprite):
             self.hasNotEaten += 1
 
         # Check for collisions with other organisms
-        collisions = pygame.sprite.spritecollide(self, all_sprites, False)
+        collisions = pg.sprite.spritecollide(self, all_sprites, False)
         for collision in collisions:
             if collision != self:
                 # Define the collision handlers for each type of organism
@@ -389,7 +484,7 @@ class Organism(pygame.sprite.Sprite):
         self.color = color
         self.image.fill(color)
     def set_size(self, size):
-        self.image = pygame.Surface([size, size])
+        self.image = pg.Surface([size, size])
         self.rect = self.image.get_rect()
         self.image.fill(self.color)
     def set_coor(self,new_x, new_y):
@@ -399,17 +494,17 @@ class Organism(pygame.sprite.Sprite):
 
 '''
 # Define the input variables for the text entry boxes  
-green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 120), (100, 30)), manager=manager) # , container=container)
+green_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 120), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(green_input)
-dark_green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 140), (100, 30)), manager=manager) # , container=container)
+dark_green_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 140), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(dark_green_input)
-brown_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 160), (100, 30)), manager=manager) # , container=container)
+brown_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 160), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(brown_input)
-yellow_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 180), (100, 30)), manager=manager) # , container=container)
+yellow_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 180), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(yellow_input)
-red_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 200), (100, 30)), manager=manager) # , container=container)
+red_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 200), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(red_input)
-light_intensity_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 260), (100, 30)), manager=manager) # , container=container)
+light_intensity_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 260), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(light_intensity_input)
 
 
@@ -422,7 +517,7 @@ def handle_text_entry_finished(event):
 def handle_text_entry_finished(event):
     if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
         update_starvation_variables()
-'''
+
 # Create the buttons
 class Button:
     def __init__(self, color, x, y, width, height, text=None):
@@ -435,26 +530,27 @@ class Button:
         
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
+        pg.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
         if self.text:
-            font = pygame.font.Font(None, 20)
+            font = pg.font.Font(None, 20)
             text = font.render(self.text, 1, WHITE)
             screen.blit(text, (self.x + (self.width // 2 - text.get_width() // 2), self.y + (self.height // 2 - text.get_height() // 2)))
 
     def is_mouse_over(self, pos):
         return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
-
+'''
 # Define a function to parse and update the starvation variables
+'''
 def update_starvation_variables():
     try:
-        '''
+        
         green_starvation = int(green_input.get_text())
         dark_green_starvation = int(dark_green_input.get_text())
         brown_starvation = int(brown_input.get_text())
         yellow_starvation = int(yellow_input.get_text())
         red_starvation = int(red_input.get_text())
         light_intensity = int(light_intensity_input.get_text())
-        '''
+       
         for organism in all_sprites:
             if organism.color == "GREEN":
                 organism.starvation_count = green_starvation
@@ -470,7 +566,7 @@ def update_starvation_variables():
                 organism.starvation_count = light_intensity
     except ValueError:
         print("Invalid input")
-
+ '''
 # Set up the gray bar and buttons
 button_height = 30
 button_width = 70
@@ -480,19 +576,19 @@ stop_button_y = 70
 
 
 # postion the button objects.
-start_button_rect = pygame.Rect(button_x, start_button_y, button_width, button_height)
-stop_button_rect = pygame.Rect(button_x, stop_button_y, button_width, button_height)
+#start_button_rect = pg.Rect(button_x, start_button_y, button_width, button_height)
+#stop_button_rect = pg.Rect(button_x, stop_button_y, button_width, button_height)
 
-# Create start and stop buttons
-start_button = Button(GREEN, button_x, start_button_y, button_width, button_height, 'Start')
-stop_button = Button(RED, button_x, stop_button_y, button_width, button_height, 'Stop')
+# Create start and stop buttons # (self, x, y, w, h, text='', color=(255, 255, 255), font=None):
+start_button = Button(button_x, start_button_y, button_width, button_height, 'Start', GREEN)
+stop_button = Button(button_x, stop_button_y, button_width, button_height, 'Stop', RED)
+buttons = [start_button, stop_button]
 
-
-start_button.draw(screen)
-stop_button.draw(screen)
+#start_button.draw(screen)
+#stop_button.draw(screen)
 
 # Initialize the simulation
-all_sprites = pygame.sprite.Group()
+all_sprites = pg.sprite.Group()
 
 organisms_data = [
     {"color": GREEN, "speed": speeds[0], "width": 2, "height": 2, "starvation": 6000},
@@ -532,24 +628,22 @@ def convert_color_to_label(color):
             return value
     return None
 
+
+
+
 # Game loop
 running = True
-started = False
+
+
 
 
 while running:
     time_delta = clock.tick(60) / 1000.0  # Update the clock and get the time delta
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    #global started
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
             running = False
-        elif event.type == MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            if start_button.is_mouse_over(mouse_pos):
-                started = True
-            if stop_button.is_mouse_over(mouse_pos):
-                started = False
-        elif event.type == pygame.USEREVENT:
+        elif event.type == pg.USEREVENT:
             if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
                 '''
                 if event.ui_element == green_input:
@@ -561,9 +655,21 @@ while running:
                 elif event.ui_element == yellow_input:
                     num_yellow = int(yellow_input.get_text())
                 elif event.ui_element == red_input:
-                    num_red = int(red_input.get_text())
-                '''
+                    num_red = int(red_input.get_text())'''
+        '''        
+        elif event.type == MOUSEBUTTONDOWN:
+            mouse_pos = pg.mouse.get_pos()
+            if start_button.is_mouse_over(mouse_pos):
+                started = True
+            if stop_button.is_mouse_over(mouse_pos):
+                started = False        
             manager.process_events(event)
+        ''' 
+        for button in buttons:
+            button.handle_event(event)
+    for button in buttons:
+        button.update(pg.mouse.get_pos())   
+
     # # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
     if started:
         all_sprites.update(all_sprites)
@@ -577,13 +683,14 @@ while running:
     screen.blit(screen, (0, 0))
 
     if len(all_sprites) == 0: # Stop the game if there are no more sprites
+        #global started
         started = False
         running = False
         text_surface = font.render(f"Total Organisms: Game Over!", True, WHITE)
 
     # Draw the gray bar
-    gray_bar_rect = pygame.Rect(GRID_WIDTH, 0, SCREEN_WIDTH - GRID_WIDTH, SCREEN_HEIGHT)
-    pygame.draw.rect(screen, GRAY, gray_bar_rect)
+    gray_bar_rect = pg.Rect(GRID_WIDTH, 0, SCREEN_WIDTH - GRID_WIDTH, SCREEN_HEIGHT)
+    pg.draw.rect(screen, GRAY, gray_bar_rect)
 
     # Update and draw the UI elements
     manager.update(time_delta)
@@ -601,8 +708,8 @@ while running:
     text_surface = font.render(f"Total Organisms: {num_sprites}", True, WHITE)
 
     # Update the screen
-    pygame.display.flip()
+    pg.display.flip()
 
 conn.close()
-pygame.quit()
+pg.quit()
 sys.exit()
