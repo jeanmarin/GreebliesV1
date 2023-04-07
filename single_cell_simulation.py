@@ -370,27 +370,27 @@ class Organism(pygame.sprite.Sprite):
 # manager = pygame_gui.UIManager((WINDOW_WIDTH, WINDOW_HEIGHT))
 
 # Create a UI container and add it to the UI manager
-container = pygame_gui.elements.UIContainer(
+'''container = pygame_gui.elements.UIContainer(
         relative_rect=pygame.Rect((0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT)),
         manager=manager
     )
-manager.add_ui_element(container)
+manager.add_ui_element(container)'''
 
 # Define the input variables for the text entry boxes  
-green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 120), (100, 30)), manager=manager, container=container)
-container.add_ui_element(green_input)
+green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 120), (100, 30)), manager=manager) # , container=container)
+# container.add_ui_element(green_input)
 
 # Add the other text entry boxes to the container
-dark_green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 140), (100, 30)), manager=manager, container=container)
-container.add_ui_element(dark_green_input)
-brown_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 160), (100, 30)), manager=manager, container=container)
-container.add_ui_element(brown_input)
-yellow_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 180), (100, 30)), manager=manager, container=container)
-container.add_ui_element(yellow_input)
-red_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 200), (100, 30)), manager=manager, container=container)
-container.add_ui_element(red_input)
-light_intensity_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 260), (100, 30)), manager=manager, container=container)
-container.add_ui_element(light_intensity_input)
+dark_green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 140), (100, 30)), manager=manager) # , container=container)
+# container.add_ui_element(dark_green_input)
+brown_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 160), (100, 30)), manager=manager) # , container=container)
+# container.add_ui_element(brown_input)
+yellow_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 180), (100, 30)), manager=manager) # , container=container)
+# container.add_ui_element(yellow_input)
+red_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 200), (100, 30)), manager=manager) # , container=container)
+# container.add_ui_element(red_input)
+light_intensity_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 260), (100, 30)), manager=manager) # , container=container)
+# container.add_ui_element(light_intensity_input)
 
 '''# Add the text entry elements to the container
 container.add_ui_element(green_input)
@@ -406,7 +406,7 @@ def handle_text_entry_finished(event):
         update_starvation_variables()
 
 # Register the listener for the text entry finished event
-pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
+# pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
 
 # Define a function to handle the text entry finished event
 def handle_text_entry_finished(event):
@@ -414,7 +414,7 @@ def handle_text_entry_finished(event):
         update_starvation_variables()
 
 # Register the listener for the text entry finished event
-pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
+# pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
 
 # Create a text input field in the gray bar area
 # starvation_input.set_allowed_characters('0123456789')
