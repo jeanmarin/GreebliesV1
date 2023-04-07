@@ -1,4 +1,4 @@
-# python-organisms
+# Greeblies V1
 A little simulation game to see the relationships of different one cell organisms and how they interact. 
 
 ***************************************
@@ -6,7 +6,7 @@ A little simulation game to see the relationships of different one cell organism
 ***************************************
 
 ***************************************
-Single Cell Simulation - Greeblies. 
+Single Cell Simulation - Greeblies 
 Version 1.0
 ***************************************
 
