@@ -1,6 +1,8 @@
 # Greeblies V1
 A little simulation game to see the relationships of different one cell organisms and how they interact. 
 
+![Image description](images/Greeblies_Title.png)
+
 ***************************************
 ***  Jean-Louis Marin 2023 - April. ***
 ***************************************
