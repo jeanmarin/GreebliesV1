@@ -24,8 +24,10 @@
 
 '''
 
-
+# import tkinter as tk
 import pygame
+import os
+from PIL import Image
 import random
 from pygame.locals import *
 import sys
@@ -33,10 +35,18 @@ import time
 import math
 import pygame_gui
 import sqlite3
-import os
-#import tkinter as tk
+
 from pygame.locals import *
 from pygame_gui import UIManager
+
+
+# Initialize Pygame
+pygame.init()
+
+# Initialize font module
+pygame.font.init()
+
+
 #from tkinter_pygame import PygameDisplay
 PRINT_ORGANISM_COORDS = False
 
@@ -65,7 +75,6 @@ c = conn.cursor()
 # Create a table to store the organism data
 # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
 
-
 c.execute('''CREATE TABLE organisms
              (id INT,
               color TEXT,
@@ -77,17 +86,7 @@ c.execute('''CREATE TABLE organisms
               lifespan INT)''')
 
 
-
-'''
-To do:
-
-'''
-# Initialize Pygame
-pygame.init()
-
-# Initialize font module
-pygame.font.init()
-
+# display screen configuration
 pygame.display.set_caption("Single Cell Simulation")
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -115,11 +114,13 @@ WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 
 
-# Define the global function
+# Define the global function for debugging. Comment out when not needed. 
+'''
+toggle = False
 def print_organism_coords(organism, toggle):
     if toggle:
         print(f"Organism coordinates: x={organism.rect.x}, y={organism.rect.y}")
-
+'''
 #
 def random_movement_vector(speed):
     direction = random.uniform(0, 2 * math.pi)
@@ -129,8 +130,7 @@ def random_movement_vector(speed):
 
 # Collision handlers
 def handle_green_green_collision(organism1, organism2):
-    #all_sprites.remove(organism1, organism2)
-    # Turn the parent organisms dark green Organism 
+    # Turn the parent organisms dark green
     organism1.set_color(DARK_GREEN)
     organism1.set_size(3) 
     organism2.set_color(DARK_GREEN)
@@ -253,6 +253,7 @@ def handle_green_red_collision(organism1, organism2):
     pass
     
 def handle_red_brown_collision(organism1, organism2):
+    pass
     '''
     if organism1.color == RED:
         all_sprites.remove(organism2)
@@ -271,6 +272,7 @@ def handle_red_brown_collision(organism1, organism2):
             all_sprites.add(Organism(RED, organism2.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
             organism2.food_count = 0
     '''
+
 def handle_red_yellow_collision(organism1, organism2):
     if organism1.color == RED:
         all_sprites.remove(organism2)
@@ -395,20 +397,10 @@ class Organism(pygame.sprite.Sprite):
         self.rect.y = new_y
         self.image.fill(self.color)
 
-# manager = pygame_gui.UIManager((WINDOW_WIDTH, WINDOW_HEIGHT))
-
-# Create a UI container and add it to the UI manager
-'''container = pygame_gui.elements.UIContainer(
-        relative_rect=pygame.Rect((0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT)),
-        manager=manager
-    )
-manager.add_ui_element(container)'''
-
+'''
 # Define the input variables for the text entry boxes  
 green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 120), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(green_input)
-
-# Add the other text entry boxes to the container
 dark_green_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 140), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(dark_green_input)
 brown_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 160), (100, 30)), manager=manager) # , container=container)
@@ -420,33 +412,17 @@ red_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 
 light_intensity_input = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((760, 260), (100, 30)), manager=manager) # , container=container)
 # container.add_ui_element(light_intensity_input)
 
-'''# Add the text entry elements to the container
-container.add_ui_element(green_input)
-container.add_ui_element(dark_green_input)
-container.add_ui_element(brown_input)
-container.add_ui_element(yellow_input)
-container.add_ui_element(red_input)
-container.add_ui_element(light_intensity_input)'''
 
 # Define a function to handle the text entry finished event
 def handle_text_entry_finished(event):
     if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
         update_starvation_variables()
 
-# Register the listener for the text entry finished event
-# pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
-
 # Define a function to handle the text entry finished event
 def handle_text_entry_finished(event):
     if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
         update_starvation_variables()
-
-# Register the listener for the text entry finished event
-# pygame_gui.core.event_manager.register_listener(handle_text_entry_finished, pygame_gui.events.UI_TEXT_ENTRY_FINISHED)
-
-# Create a text input field in the gray bar area
-# starvation_input.set_allowed_characters('0123456789')
-
+'''
 # Create the buttons
 class Button:
     def __init__(self, color, x, y, width, height, text=None):
@@ -471,13 +447,14 @@ class Button:
 # Define a function to parse and update the starvation variables
 def update_starvation_variables():
     try:
+        '''
         green_starvation = int(green_input.get_text())
         dark_green_starvation = int(dark_green_input.get_text())
         brown_starvation = int(brown_input.get_text())
         yellow_starvation = int(yellow_input.get_text())
         red_starvation = int(red_input.get_text())
         light_intensity = int(light_intensity_input.get_text())
-
+        '''
         for organism in all_sprites:
             if organism.color == "GREEN":
                 organism.starvation_count = green_starvation
@@ -524,7 +501,7 @@ organisms_data = [
     {"color": YELLOW, "speed": speeds[2],   "width": 5, "height": 5, "starvation": 1000},
     {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 850}
 ]
-# thsi function is used to create the starting organisms
+# this function is used to create the starting organisms
 for organism_data in organisms_data:
     if organism_data["color"] == GREEN:
         num_green = 100
@@ -545,6 +522,7 @@ for organism_data in organisms_data:
         num_sprites = len(all_sprites)
         all_organisms_text = font.render(f"Organism Count: {num_sprites}", True, WHITE)
 
+# this function is used to convert the color to a label
 def convert_color_to_label(color):
     color_dict = {(0, 255, 0): "GREEN", (0, 100, 0): "DARK_GREEN", (139, 69, 19): "BROWN", 
                   (255, 255, 0): "YELLOW", (255, 0, 0): "RED", (255, 255, 255): "WHITE",
@@ -573,6 +551,7 @@ while running:
                 started = False
         elif event.type == pygame.USEREVENT:
             if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                '''
                 if event.ui_element == green_input:
                     num_green = int(green_input.get_text())
                 elif event.ui_element == dark_green_input:
@@ -583,6 +562,7 @@ while running:
                     num_yellow = int(yellow_input.get_text())
                 elif event.ui_element == red_input:
                     num_red = int(red_input.get_text())
+                '''
             manager.process_events(event)
     # # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
     if started:
