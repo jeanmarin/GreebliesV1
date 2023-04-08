@@ -100,7 +100,7 @@ manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pg.time.Clock()
 
 # Define a font and render the text
-font = pg.font.SysFont(None, 20)
+font = pg.font.SysFont(None, 16)
 
 speeds = [1, 1, 7, 5, 10]
 light_intensity = 1
@@ -149,7 +149,6 @@ def handle_green_green_collision(organism1, organism2):
     new_organism = Organism(GREEN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 2 , 2, 6000, id_counter)
     all_sprites.add(new_organism)
     
-
 def handle_brown_brown_collision(organism1, organism2):
     pass
       
@@ -583,6 +582,12 @@ stop_button_y = 70
 start_button = Button(button_x, start_button_y, button_width, button_height, 'Start', GREEN)
 stop_button = Button(button_x, stop_button_y, button_width, button_height, 'Stop', RED)
 buttons = [start_button, stop_button]
+#def __init__(self, x, y, w, h, text='')
+#(760, 120), (100, 30)
+input_box1 = InputBox(760, 120, 100, 18)
+input_box2 = InputBox(760, 140, 100, 18)
+input_boxes = [input_box1, input_box2]
+
 
 #start_button.draw(screen)
 #stop_button.draw(screen)
@@ -667,8 +672,14 @@ while running:
         ''' 
         for button in buttons:
             button.handle_event(event)
+        for box in input_boxes:
+            box.handle_event(event)
     for button in buttons:
         button.update(pg.mouse.get_pos())   
+    for box in input_boxes:
+        box.update()
+
+
 
     # # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
     if started:
@@ -700,6 +711,8 @@ while running:
     all_sprites.draw(screen)
     start_button.draw(screen)
     stop_button.draw(screen)
+    for box in input_boxes:
+        box.draw(screen)
     screen.blit(all_organisms_text, (760, 720))
 
     # Update the count of organisms
