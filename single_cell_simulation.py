@@ -144,9 +144,16 @@ def handle_green_green_collision(organism1, organism2):
     organism2.set_coor(random.randint(0, 740), random.randint(0, 740))
 
 
+    '''# Reproduction: Create a new green organism
+    
+    new_organism = Organism(GREEN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 2 , 2, 6000, id_counter)
+    all_sprites.add(new_organism)
+    '''
     # Reproduction: Create a new green organism
     update_id_counter()
-    new_organism = Organism(GREEN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 2 , 2, 6000, id_counter)
+    green_organism_data = get_organism_data_by_color(GREEN)
+    new_organism = Organism(green_organism_data["color"], green_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), green_organism_data["width"],
+                            green_organism_data["height"], green_organism_data["starvation"], id_counter)
     all_sprites.add(new_organism)
     
 def handle_brown_brown_collision(organism1, organism2):
@@ -165,7 +172,11 @@ def handle_green_brown_collision(organism1, organism2):
         organism1.hasNotEaten = 0 #resest starvation counter
         if organism1.food_count >= 3:
             update_id_counter()
-            all_sprites.add(Organism(BROWN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            brown_organism_data = get_organism_data_by_color(BROWN)
+            new_organism = Organism(brown_organism_data["color"], brown_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), brown_organism_data["width"],
+                            brown_organism_data["height"], brown_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(BROWN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
             organism1.food_count = 0
                
     else :
@@ -174,7 +185,11 @@ def handle_green_brown_collision(organism1, organism2):
         organism2.hasNotEaten = 0 #resest starvation counter
         if organism2.food_count >= 3:
             update_id_counter()
-            all_sprites.add(Organism(BROWN, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            brown_organism_data = get_organism_data_by_color(BROWN)
+            new_organism = Organism(brown_organism_data["color"], brown_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), brown_organism_data["width"],
+                            brown_organism_data["height"], brown_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(BROWN, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
             organism2.food_count = 0
 
 def handle_dark_green_brown_collision(organism1, organism2):
@@ -184,7 +199,11 @@ def handle_dark_green_brown_collision(organism1, organism2):
         organism1.hasNotEaten = 0 #resest starvation counter
         if organism1.food_count >= 3:
             update_id_counter()
-            all_sprites.add(Organism(BROWN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            brown_organism_data = get_organism_data_by_color(BROWN)
+            new_organism = Organism(brown_organism_data["color"], brown_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), brown_organism_data["width"],
+                            brown_organism_data["height"], brown_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(BROWN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
             organism1.food_count = 0
                
     else :
@@ -193,7 +212,11 @@ def handle_dark_green_brown_collision(organism1, organism2):
         organism2.hasNotEaten = 0 #resest starvation counter
         if organism2.food_count >= 3:
             update_id_counter()
-            all_sprites.add(Organism(BROWN, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
+            brown_organism_data = get_organism_data_by_color(BROWN)
+            new_organism = Organism(brown_organism_data["color"], brown_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), brown_organism_data["width"],
+                            brown_organism_data["height"], brown_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(BROWN, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 2000, id_counter))
             organism2.food_count = 0
 
 def handle_green_yellow_collision(organism1, organism2):
@@ -203,7 +226,12 @@ def handle_green_yellow_collision(organism1, organism2):
         organism1.hasNotEaten = 0 #resest starvation counter
         if organism1.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            yellow_organism_data = get_organism_data_by_color(YELLOW)
+            new_organism = Organism(yellow_organism_data["color"], yellow_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), yellow_organism_data["width"],
+                yellow_organism_data["height"], yellow_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+
+            #all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
             organism1.food_count = 0
                
     else :
@@ -212,7 +240,11 @@ def handle_green_yellow_collision(organism1, organism2):
         organism2.hasNotEaten = 0 #resest starvation counter
         if organism2.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            yellow_organism_data = get_organism_data_by_color(YELLOW)
+            new_organism = Organism(yellow_organism_data["color"], yellow_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), yellow_organism_data["width"],
+                yellow_organism_data["height"], yellow_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
             organism2.food_count = 0
 
 def handle_brown_yellow_collision(organism1, organism2):
@@ -222,7 +254,11 @@ def handle_brown_yellow_collision(organism1, organism2):
         organism1.hasNotEaten = 0 #resest starvation counter
         if organism1.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            yellow_organism_data = get_organism_data_by_color(YELLOW)
+            new_organism = Organism(yellow_organism_data["color"], yellow_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), yellow_organism_data["width"],
+                yellow_organism_data["height"], yellow_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group    
+            # all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
             organism1.food_count = 0
                
     else :
@@ -231,7 +267,11 @@ def handle_brown_yellow_collision(organism1, organism2):
         organism2.hasNotEaten = 0 #resest starvation counter
         if organism2.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            yellow_organism_data = get_organism_data_by_color(YELLOW)
+            new_organism = Organism(yellow_organism_data["color"], yellow_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), yellow_organism_data["width"],
+                yellow_organism_data["height"], yellow_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
             organism2.food_count = 0
 
 def handle_dark_green_yellow_collision(organism1, organism2):
@@ -241,7 +281,11 @@ def handle_dark_green_yellow_collision(organism1, organism2):
         organism1.hasNotEaten = 0 #resest starvation counter
         if organism1.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            yellow_organism_data = get_organism_data_by_color(YELLOW)
+            new_organism = Organism(yellow_organism_data["color"], yellow_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), yellow_organism_data["width"],
+                yellow_organism_data["height"], yellow_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(YELLOW, organism1.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
             organism1.food_count = 0
                
     else :
@@ -250,7 +294,11 @@ def handle_dark_green_yellow_collision(organism1, organism2):
         organism2.hasNotEaten = 0 #resest starvation counter
         if organism2.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
+            yellow_organism_data = get_organism_data_by_color(YELLOW)
+            new_organism = Organism(yellow_organism_data["color"], yellow_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), yellow_organism_data["width"],
+                            yellow_organism_data["height"], yellow_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group            
+            #all_sprites.add(Organism(YELLOW, organism2.speed, random.randint(0, 740), random.randint(0, 740), 3, 3, 700, id_counter))
             organism2.food_count = 0
 
 def handle_green_red_collision(organism1, organism2):
@@ -284,7 +332,11 @@ def handle_red_yellow_collision(organism1, organism2):
         organism1.hasNotEaten = 0 #resest starvation counter
         if organism1.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
+            red_organism_data = get_organism_data_by_color(RED)
+            new_organism = Organism(red_organism_data["color"], red_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), red_organism_data["width"],
+                red_organism_data["height"], red_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
             organism1.food_count = 0   
     else :
         all_sprites.remove(organism1)
@@ -292,7 +344,11 @@ def handle_red_yellow_collision(organism1, organism2):
         organism2.hasNotEaten = 0 #resest starvation counter
         if organism2.food_count >= 5:
             update_id_counter()
-            all_sprites.add(Organism(RED, organism2.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
+            red_organism_data = get_organism_data_by_color(RED)
+            new_organism = Organism(red_organism_data["color"], red_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), red_organism_data["width"],
+                red_organism_data["height"], red_organism_data["starvation"], id_counter)
+            all_sprites.add(new_organism)  # Add the new organism to all_sprites group
+            #all_sprites.add(Organism(RED, organism2.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500, id_counter))
             organism2.food_count = 0
 
 def update_id_counter():
@@ -322,6 +378,8 @@ class InputBox:
             if self.active:
                 if event.key == pg.K_RETURN:
                     print(self.text)
+                    new_size = int(self.text)
+                    update_red_organism_size(new_size)
                     self.text = ''
                 elif event.key == pg.K_BACKSPACE:
                     self.text = self.text[:-1]
@@ -438,8 +496,12 @@ class Organism(pg.sprite.Sprite):
         # Check for light exposure count. If the organism is exposed to light, it will reproduce
         if self.color == GREEN or self.color == DARK_GREEN:
             if self.light_exposure_count >= 550:    
-                update_id_counter()    
-                all_sprites.add(Organism(GREEN, self.speed, random.randint(0, 740), random.randint(0, 740), 2, 2, 6000, id_counter))
+                update_id_counter()   
+                green_organism_data = get_organism_data_by_color(GREEN)
+                new_organism = Organism(green_organism_data["color"], green_organism_data["speed"], random.randint(0, 740), random.randint(0, 740), green_organism_data["width"],
+                            green_organism_data["height"], green_organism_data["starvation"], id_counter)
+                all_sprites.add(new_organism) 
+                #all_sprites.add(Organism(GREEN, self.speed, random.randint(0, 740), random.randint(0, 740), 2, 2, 6000, id_counter))
                 self.light_exposure_count = 0
             else:
                 self.light_exposure_count += light_intensity
@@ -588,10 +650,6 @@ input_box1 = InputBox(760, 120, 100, 18)
 input_box2 = InputBox(760, 140, 100, 18)
 input_boxes = [input_box1, input_box2]
 
-
-#start_button.draw(screen)
-#stop_button.draw(screen)
-
 # Initialize the simulation
 all_sprites = pg.sprite.Group()
 
@@ -602,6 +660,20 @@ organisms_data = [
     {"color": YELLOW, "speed": speeds[2],   "width": 5, "height": 5, "starvation": 1000},
     {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 850}
 ]
+
+def update_red_organism_size(size):
+    for organism_data in organisms_data:
+        if organism_data["color"] == RED:
+            organism_data["width"] = size
+            organism_data["height"] = size
+            break
+
+def get_organism_data_by_color(color):
+    for data in organisms_data:
+        if data["color"] == color:
+            return data
+    return None
+
 # this function is used to create the starting organisms
 for organism_data in organisms_data:
     if organism_data["color"] == GREEN:
@@ -633,14 +705,8 @@ def convert_color_to_label(color):
             return value
     return None
 
-
-
-
 # Game loop
 running = True
-
-
-
 
 while running:
     time_delta = clock.tick(60) / 1000.0  # Update the clock and get the time delta
