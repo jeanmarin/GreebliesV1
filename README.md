@@ -1,5 +1,5 @@
 # Greeblies V1
-A little simulation game to see the relationships of different one cell organisms and how they interact. 
+A little simulation game to visualise the relationships of different one cell organisms and how they interact. 
 
 ![Greeblies!](images/Greeblies_Title.png)
 
