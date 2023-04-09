@@ -27,11 +27,11 @@
 # import tkinter as tk
 import pygame as pg
 import os
-from PIL import Image
+#from PIL import Image
 import random
 from pygame.locals import *
 import sys
-import time
+#import time
 import math
 import pygame_gui
 import sqlite3
@@ -119,14 +119,9 @@ WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 
 
-# Define the global function for debugging. Comment out when not needed. 
-'''
-toggle = False
-def print_organism_coords(organism, toggle):
-    if toggle:
-        print(f"Organism coordinates: x={organism.rect.x}, y={organism.rect.y}")
-'''
-#
+
+
+
 def random_movement_vector(speed):
     direction = random.uniform(0, 2 * math.pi)
     dx = speed * math.cos(direction)
@@ -143,12 +138,6 @@ def handle_green_green_collision(organism1, organism2):
     organism1.set_coor(random.randint(0, 740), random.randint(0, 740))
     organism2.set_coor(random.randint(0, 740), random.randint(0, 740))
 
-
-    '''# Reproduction: Create a new green organism
-    
-    new_organism = Organism(GREEN, organism1.speed, random.randint(0, 740), random.randint(0, 740), 2 , 2, 6000, id_counter)
-    all_sprites.add(new_organism)
-    '''
     # Reproduction: Create a new green organism
     update_id_counter()
     green_organism_data = get_organism_data_by_color(GREEN)
@@ -355,6 +344,30 @@ def update_id_counter():
     global id_counter
     id_counter += 1
 
+class HSlider:
+    def __init__(self, x, y, w, h, start_value, value_range, manager):
+        self.slider = pygame_gui.elements.UIHorizontalSlider(
+            relative_rect=pg.Rect((x, y), (w, h)),
+            start_value=start_value,
+            value_range=value_range,
+            manager=manager
+        )
+        self.slider_value = start_value
+
+    def handle_event(self, event):
+        if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+                if event.ui_element == self.slider:
+                    self.slider_value = int(event.value)
+                    print(f"HSlider value: {self.slider_value}")
+
+    def update(self, time_delta):
+        self.slider.update(time_delta)
+
+    def draw(self, surface):
+        self.update(time_delta)
+        # print("Slider drawn")
+        # self.slider.draw(surface)
+
 class InputBox:
 
     def __init__(self, x, y, w, h, text=''):
@@ -379,7 +392,7 @@ class InputBox:
                 if event.key == pg.K_RETURN:
                     print(self.text)
                     new_size = int(self.text)
-                    update_red_organism_size(new_size)
+                    update_red_organism_size(new_size, all_sprites)
                     self.text = ''
                 elif event.key == pg.K_BACKSPACE:
                     self.text = self.text[:-1]
@@ -545,89 +558,22 @@ class Organism(pg.sprite.Sprite):
         self.color = color
         self.image.fill(color)
     def set_size(self, size):
+        # Save the original x and y coordinates
+        x = self.rect.x
+        y = self.rect.y
+        # Create the new surface and rect
         self.image = pg.Surface([size, size])
         self.rect = self.image.get_rect()
+        # Fill the new surface with the original color
         self.image.fill(self.color)
+        # Set the x and y coordinates to match the original rect
+        self.rect.x = x
+        self.rect.y = y
     def set_coor(self,new_x, new_y):
         self.rect.x = new_x
         self.rect.y = new_y
         self.image.fill(self.color)
 
-'''
-# Define the input variables for the text entry boxes  
-green_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 120), (100, 30)), manager=manager) # , container=container)
-# container.add_ui_element(green_input)
-dark_green_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 140), (100, 30)), manager=manager) # , container=container)
-# container.add_ui_element(dark_green_input)
-brown_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 160), (100, 30)), manager=manager) # , container=container)
-# container.add_ui_element(brown_input)
-yellow_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 180), (100, 30)), manager=manager) # , container=container)
-# container.add_ui_element(yellow_input)
-red_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 200), (100, 30)), manager=manager) # , container=container)
-# container.add_ui_element(red_input)
-light_intensity_input = pg_gui.elements.UITextEntryLine(relative_rect=pg.Rect((760, 260), (100, 30)), manager=manager) # , container=container)
-# container.add_ui_element(light_intensity_input)
-
-
-# Define a function to handle the text entry finished event
-def handle_text_entry_finished(event):
-    if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
-        update_starvation_variables()
-
-# Define a function to handle the text entry finished event
-def handle_text_entry_finished(event):
-    if event.ui_element in [green_input, dark_green_input, brown_input, yellow_input, red_input]:
-        update_starvation_variables()
-
-# Create the buttons
-class Button:
-    def __init__(self, color, x, y, width, height, text=None):
-        self.color = color
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.text = text
-        
-
-    def draw(self, screen):
-        pg.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), 0)
-        if self.text:
-            font = pg.font.Font(None, 20)
-            text = font.render(self.text, 1, WHITE)
-            screen.blit(text, (self.x + (self.width // 2 - text.get_width() // 2), self.y + (self.height // 2 - text.get_height() // 2)))
-
-    def is_mouse_over(self, pos):
-        return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
-'''
-# Define a function to parse and update the starvation variables
-'''
-def update_starvation_variables():
-    try:
-        
-        green_starvation = int(green_input.get_text())
-        dark_green_starvation = int(dark_green_input.get_text())
-        brown_starvation = int(brown_input.get_text())
-        yellow_starvation = int(yellow_input.get_text())
-        red_starvation = int(red_input.get_text())
-        light_intensity = int(light_intensity_input.get_text())
-       
-        for organism in all_sprites:
-            if organism.color == "GREEN":
-                organism.starvation_count = green_starvation
-            elif organism.color == "DARK_GREEN":
-                organism.starvation_count = dark_green_starvation
-            elif organism.color == "BROWN":
-                organism.starvation_count = brown_starvation
-            elif organism.color == "YELLOW":
-                organism.starvation_count = yellow_starvation
-            elif organism.color == "RED":
-                organism.starvation_count = red_starvation
-            elif organism.color == "LIGHT":
-                organism.starvation_count = light_intensity
-    except ValueError:
-        print("Invalid input")
- '''
 # Set up the gray bar and buttons
 button_height = 30
 button_width = 70
@@ -636,19 +582,19 @@ start_button_y = 30
 stop_button_y = 70
 
 
-# postion the button objects.
-#start_button_rect = pg.Rect(button_x, start_button_y, button_width, button_height)
-#stop_button_rect = pg.Rect(button_x, stop_button_y, button_width, button_height)
-
 # Create start and stop buttons # (self, x, y, w, h, text='', color=(255, 255, 255), font=None):
 start_button = Button(button_x, start_button_y, button_width, button_height, 'Start', GREEN)
 stop_button = Button(button_x, stop_button_y, button_width, button_height, 'Stop', RED)
 buttons = [start_button, stop_button]
 #def __init__(self, x, y, w, h, text='')
 #(760, 120), (100, 30)
-input_box1 = InputBox(760, 120, 100, 18)
-input_box2 = InputBox(760, 140, 100, 18)
+input_box1 = InputBox(755, 120, 100, 18)
+input_box2 = InputBox(755, 140, 100, 18)
 input_boxes = [input_box1, input_box2]
+
+slider1 = HSlider(755, 160, 100, 18, 5, (1, 20), manager)
+#slider2 = HSlider(755, 180, 100, 18, 25, (0, 50), manager)
+#sliders = [slider1, slider2]
 
 # Initialize the simulation
 all_sprites = pg.sprite.Group()
@@ -661,12 +607,21 @@ organisms_data = [
     {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 850}
 ]
 
-def update_red_organism_size(size):
+def update_red_organism_size(size,all_sprites):
     for organism_data in organisms_data:
         if organism_data["color"] == RED:
             organism_data["width"] = size
             organism_data["height"] = size
-            break
+            #break
+    for organism in all_sprites:
+        if organism.color == RED:
+            #print("it runs" + str(organism))
+            organism.set_size(size)
+            #all_sprites.update(organism)          
+
+            #organism.update() 
+    # Update the size of all RED organisms
+    
 
 def get_organism_data_by_color(color):
     for data in organisms_data:
@@ -677,13 +632,13 @@ def get_organism_data_by_color(color):
 # this function is used to create the starting organisms
 for organism_data in organisms_data:
     if organism_data["color"] == GREEN:
-        num_green = 100
+        num_green = 150
     elif organism_data["color"] == BROWN:
         num_brown = 75
     elif organism_data["color"] == YELLOW:
-        num_yellow = 30
+        num_yellow = 50
     elif organism_data["color"] == RED:
-        num_red = 6
+        num_red = 10
     
     for _ in range(num_green if organism_data["color"] == GREEN else
                    num_brown if organism_data["color"] == BROWN else
@@ -714,38 +669,28 @@ while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
-        elif event.type == pg.USEREVENT:
-            if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
-                '''
-                if event.ui_element == green_input:
-                    num_green = int(green_input.get_text())
-                elif event.ui_element == dark_green_input:
-                    num_dark_green = int(dark_green_input.get_text())
-                elif event.ui_element == brown_input:
-                    num_brown = int(brown_input.get_text())
-                elif event.ui_element == yellow_input:
-                    num_yellow = int(yellow_input.get_text())
-                elif event.ui_element == red_input:
-                    num_red = int(red_input.get_text())'''
-        '''        
-        elif event.type == MOUSEBUTTONDOWN:
-            mouse_pos = pg.mouse.get_pos()
-            if start_button.is_mouse_over(mouse_pos):
-                started = True
-            if stop_button.is_mouse_over(mouse_pos):
-                started = False        
-            manager.process_events(event)
-        ''' 
+        manager.process_events(event)
+
+         # Handle slider events
+        if event.type == pg.USEREVENT:
+            if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+                if event.ui_element == slider1.slider:
+                    #pass
+                    print('Slider value:', event.value)
+                    update_red_organism_size(event.value, all_sprites)
+
         for button in buttons:
             button.handle_event(event)
         for box in input_boxes:
             box.handle_event(event)
+
     for button in buttons:
         button.update(pg.mouse.get_pos())   
     for box in input_boxes:
         box.update()
 
-
+    
+    manager.update(time_delta)
 
     # # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
     if started:
@@ -779,6 +724,10 @@ while running:
     stop_button.draw(screen)
     for box in input_boxes:
         box.draw(screen)
+    #for slider in sliders:
+    #    slider.draw(screen, time_delta)
+    #slider1.draw(screen)
+
     screen.blit(all_organisms_text, (760, 720))
 
     # Update the count of organisms
