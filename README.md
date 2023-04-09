@@ -21,7 +21,7 @@ Reds are the tertiary consumers of the ecosystem. They eat yellows and die of st
 The variables to adjust are the number of organisms, the speed of the organisms, and the light intensity, and starvation counter.
 The organisms are randomly placed on the screen and move randomly.
 The organisms are drawn on the screen and the number of organisms of each type is displayed. -- BROKEN --
-The organisms are stored in a database. not ready yet. the information is dumped but needs ferter refinement.
+The organisms are stored in a database. not ready yet. the information is dumped but needs further refinement.
 
 To Do:
 ******
