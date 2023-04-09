@@ -21,6 +21,9 @@
 * 8. increase the model to gargantuan proportions for the simulation. for multiple people to interact with. 
 
 ** - baseline code established = April 7th 2023. 
+https://pygame-gui.readthedocs.io/en/latest/theme_reference/theme_horizontal_slider.html
+https://pygame-gui.readthedocs.io/en/latest/index.html
+
 
 '''
 
@@ -38,6 +41,8 @@ import sqlite3
 
 from pygame.locals import *
 from pygame_gui import UIManager
+
+
 
 
 # Initialize pg
@@ -94,7 +99,7 @@ pg.display.set_caption("Single Cell Simulation")
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 COLOR_INACTIVE = pg.Color('lightskyblue3')
 COLOR_ACTIVE = pg.Color('dodgerblue2')
-manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
+manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT),'theme.json')
 
 # Create a clock to keep track of time
 clock = pg.time.Clock()
@@ -588,6 +593,12 @@ stop_button = Button(button_x, stop_button_y, button_width, button_height, 'Stop
 buttons = [start_button, stop_button]
 #def __init__(self, x, y, w, h, text='')
 #(760, 120), (100, 30)
+text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((530, 60), (580, 100)),
+                            text='Red Organism size',
+                            manager=manager)
+text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((540, 100), (580, 180)),
+                            text='Green Organism size',
+                            manager=manager)
 input_box1 = InputBox(755, 120, 100, 18)
 input_box2 = InputBox(755, 140, 100, 18)
 input_boxes = [input_box1, input_box2]
