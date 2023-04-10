@@ -99,7 +99,19 @@ pg.display.set_caption("Single Cell Simulation")
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 COLOR_INACTIVE = pg.Color('lightskyblue3')
 COLOR_ACTIVE = pg.Color('dodgerblue2')
-manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT),'theme.json')
+
+
+# Create a UI theme dictionary with the desired text color and font
+ui_theme = {
+    "label": {
+        "text_color": pg.Color("green"),
+        "font": pg.font.Font(None, 24)  # Set the font here, replace 'None' with a font file path if needed
+    }
+}
+
+
+manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT),'theme.json', ui_theme)
+#manager = pygame_gui.UIManager((800, 600), "theme.json", ui_theme)
 
 # Create a clock to keep track of time
 clock = pg.time.Clock()
@@ -587,18 +599,25 @@ start_button_y = 30
 stop_button_y = 70
 
 
+# Create a UIManager and pass the ui_theme dictionary to it
+#manager = pygame_gui.UIManager((800, 600), "theme.json", ui_theme)
+
+
 # Create start and stop buttons # (self, x, y, w, h, text='', color=(255, 255, 255), font=None):
 start_button = Button(button_x, start_button_y, button_width, button_height, 'Start', GREEN)
 stop_button = Button(button_x, stop_button_y, button_width, button_height, 'Stop', RED)
 buttons = [start_button, stop_button]
 #def __init__(self, x, y, w, h, text='')
 #(760, 120), (100, 30)
+
 text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((530, 60), (580, 100)),
                             text='Red Organism size',
-                            manager=manager)
+                            manager=manager,
+                            object_id="label" ) # Set the text color to green)
 text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((540, 100), (580, 180)),
                             text='Green Organism size',
-                            manager=manager)
+                            manager=manager,
+                            object_id="label" ) # Set the text color to green)
 input_box1 = InputBox(755, 120, 100, 18)
 input_box2 = InputBox(755, 140, 100, 18)
 input_boxes = [input_box1, input_box2]
