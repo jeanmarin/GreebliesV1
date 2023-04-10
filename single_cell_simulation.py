@@ -17,8 +17,7 @@
 * 4. Hook up the database to BI reporting dashboard. for stats at the of the simulation.
 * 5. create various hooks in the code to link exteral ML or AI to evolve the organisms' behavior each generation of the game.
 * 6. Move the simulation to cloud hosted server with a web front end.
-* 7. Add a GUI to adjust the number of organisms, the speed of the organisms, and the light intensity.
-* 8. increase the model to gargantuan proportions for the simulation. for multiple people to interact with. 
+* 7. increase the model to gargantuan proportions for the simulation. for multiple people to interact with. 
 
 ** - baseline code established = April 7th 2023. 
 https://pygame-gui.readthedocs.io/en/latest/theme_reference/theme_horizontal_slider.html
@@ -26,10 +25,11 @@ https://pygame-gui.readthedocs.io/en/latest/index.html
 
 
 '''
+#-# this comment block is for all the db stuff.
 
 # import tkinter as tk
 import pygame as pg
-import os
+#-#import os
 #from PIL import Image
 import random
 from pygame.locals import *
@@ -37,23 +37,16 @@ import sys
 #import time
 import math
 import pygame_gui
-import sqlite3
+#-#import sqlite3
 
 from pygame.locals import *
 from pygame_gui import UIManager
-
-
-
 
 # Initialize pg
 pg.init()
 
 # Initialize font module
 pg.font.init()
-
-
-#from tkinter_pygame import PygameDisplay
-PRINT_ORGANISM_COORDS = False
 
 # Set up the screen
 SCREEN_WIDTH = 910
@@ -73,33 +66,33 @@ detection_distance = 10
 started = False
 
 # Delete the database file if it exists
-if os.path.exists("organism_data.db"):
-    os.remove("organism_data.db")
+#-#if os.path.exists("organism_data.db"):
+#-#    os.remove("organism_data.db")
 
 # Connect to the database
-conn = sqlite3.connect("organism_data.db")
-c = conn.cursor()
+#-#conn = sqlite3.connect("organism_data.db")
+#-#c = conn.cursor()
 
 # Create a table to store the organism data
 # ID, RED, organism1.speed, random.randint(0, 740), random.randint(0, 740), 7, 7, 500
+#-#
 
-c.execute('''CREATE TABLE organisms
-             (id INT,
-              color TEXT,
-              speed INT, 
-              x INT,
-              y INT,
-              width INT,
-              height INT,
-              lifespan INT)''')
+#-#c.execute('''CREATE TABLE organisms
+#-#             (id INT,
+#-#              color TEXT,
+#-#              speed INT, 
+#-#              x INT,
+#-#              y INT,
+#-#              width INT,
+#-#              height INT,
+#-#              lifespan INT)''')
 
 
 # display screen configuration
-pg.display.set_caption("Single Cell Simulation")
+pg.display.set_caption("Greeblies! - Single Cell Simulation Game")
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 COLOR_INACTIVE = pg.Color('lightskyblue3')
 COLOR_ACTIVE = pg.Color('dodgerblue2')
-
 
 # Create a UI theme dictionary with the desired text color and font
 ui_theme = {
@@ -109,9 +102,9 @@ ui_theme = {
     }
 }
 
-
+# Create the UI Manager instance, pulling some parameters from the theme.json file
+# If you upate the theme.json file it will update the UI Manager's theme dynamically
 manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT),'theme.json', ui_theme)
-#manager = pygame_gui.UIManager((800, 600), "theme.json", ui_theme)
 
 # Create a clock to keep track of time
 clock = pg.time.Clock()
@@ -119,12 +112,20 @@ clock = pg.time.Clock()
 # Define a font and render the text
 font = pg.font.SysFont(None, 16)
 
-speeds = [1, 1, 7, 5, 10]
+# Starting Speed of the organisms
+#speeds = [1, 1, 7, 5, 10]
+green_speed = 1
+dark_green_speed = 1
+brown_speed = 7
+yellow_speed = 5
+red_speed = 10
+
+# Starting light intensity
 light_intensity = 1
-num_green = 0
-num_brown = 0
-num_yellow = 0
-num_red = 0
+start_num_green = 150
+start_num_brown = 75
+start_num_yellow = 50
+start_num_red = 10
 
 # Colors
 GREEN = (0, 255, 0)
@@ -135,17 +136,14 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
 
-
-
-
-
+# Define a function to make the movenment vectro random
 def random_movement_vector(speed):
     direction = random.uniform(0, 2 * math.pi)
     dx = speed * math.cos(direction)
     dy = speed * math.sin(direction)
     return dx, dy
 
-# Collision handlers
+# Collision handlers to handle each typ of collision between organisms
 def handle_green_green_collision(organism1, organism2):
     # Turn the parent organisms dark green
     organism1.set_color(DARK_GREEN)
@@ -361,6 +359,7 @@ def update_id_counter():
     global id_counter
     id_counter += 1
 
+# Horizontal Slider class
 class HSlider:
     def __init__(self, x, y, w, h, start_value, value_range, manager):
         self.slider = pygame_gui.elements.UIHorizontalSlider(
@@ -375,16 +374,15 @@ class HSlider:
         if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                 if event.ui_element == self.slider:
                     self.slider_value = int(event.value)
-                    print(f"HSlider value: {self.slider_value}")
+                    #print(f"HSlider value: {self.slider_value}")
 
     def update(self, time_delta):
         self.slider.update(time_delta)
 
     def draw(self, surface):
         self.update(time_delta)
-        # print("Slider drawn")
-        # self.slider.draw(surface)
 
+# Input Box class
 class InputBox:
 
     def __init__(self, x, y, w, h, text=''):
@@ -407,7 +405,7 @@ class InputBox:
         if event.type == pg.KEYDOWN:
             if self.active:
                 if event.key == pg.K_RETURN:
-                    print(self.text)
+                    #print(self.text)
                     new_size = int(self.text)
                     update_red_organism_size(new_size, all_sprites)
                     self.text = ''
@@ -430,6 +428,7 @@ class InputBox:
         pg.draw.rect(screen, self.color, self.rect, 2)
 
 # def __init__(self, color, x, y, width, height, text=None):
+# Button class
 class Button:
     def __init__(self, x, y, w, h, text='', color=(255, 255, 255), font=None):
         self.rect = pg.Rect(x, y, w, h)
@@ -445,13 +444,13 @@ class Button:
         if event.type == pg.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 # Perform the desired action
-                print(self.text)
+                #print(self.text)
                 if self.text == "Start":
-                    print("start")
+                    #print("start")
                     global started
                     started = True
                 elif self.text == "Stop":
-                    print("stop")
+                    #print("stop")
                     # global started
                     started = False
                 
@@ -474,8 +473,6 @@ class Button:
     
         screen.blit(self.txt_surface, (self.rect.x + (self.rect.w - self.txt_surface.get_width()) // 2,
                                         self.rect.y + (self.rect.h - self.txt_surface.get_height()) // 2))
-
-
 
 # Organism class
 class Organism(pg.sprite.Sprite):
@@ -592,24 +589,18 @@ class Organism(pg.sprite.Sprite):
         self.image.fill(self.color)
 
 # Set up the gray bar and buttons
-button_height = 30
-button_width = 70
-button_x = GRID_WIDTH + 30
-start_button_y = 30
-stop_button_y = 70
-
-
-# Create a UIManager and pass the ui_theme dictionary to it
-#manager = pygame_gui.UIManager((800, 600), "theme.json", ui_theme)
-
+button_height = 30 # button height
+button_width = 70 # button width
+button_y = 6 # y coordinate of the buttons
+start_button_X = GRID_WIDTH + 6 # x coordinate of the start button
+stop_button_X = GRID_WIDTH + 84 # x coordinate of the stop button
 
 # Create start and stop buttons # (self, x, y, w, h, text='', color=(255, 255, 255), font=None):
-start_button = Button(button_x, start_button_y, button_width, button_height, 'Start', GREEN)
-stop_button = Button(button_x, stop_button_y, button_width, button_height, 'Stop', RED)
+start_button = Button(start_button_X, button_y,  button_width, button_height, 'Start', GREEN)
+stop_button = Button(stop_button_X, button_y,  button_width, button_height, 'Stop', RED)
 buttons = [start_button, stop_button]
-#def __init__(self, x, y, w, h, text='')
-#(760, 120), (100, 30)
 
+# Create the text labels 
 text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((530, 60), (580, 100)),
                             text='Red Organism size',
                             manager=manager,
@@ -618,10 +609,12 @@ text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((540, 100), (580, 180
                             text='Green Organism size',
                             manager=manager,
                             object_id="label" ) # Set the text color to green)
+# Create the input boxes
 input_box1 = InputBox(755, 120, 100, 18)
 input_box2 = InputBox(755, 140, 100, 18)
 input_boxes = [input_box1, input_box2]
 
+# Create the sliders
 slider1 = HSlider(755, 160, 100, 18, 5, (1, 20), manager)
 #slider2 = HSlider(755, 180, 100, 18, 25, (0, 50), manager)
 #sliders = [slider1, slider2]
@@ -630,13 +623,13 @@ slider1 = HSlider(755, 160, 100, 18, 5, (1, 20), manager)
 all_sprites = pg.sprite.Group()
 
 organisms_data = [
-    {"color": GREEN, "speed": speeds[0], "width": 2, "height": 2, "starvation": 6000},
-    {"color": DARK_GREEN, "speed": speeds[1] , "width": 3, "height": 3, "starvation": 6000},
-    {"color": BROWN, "speed": speeds[3], "width": 3, "height": 3, "starvation": 2000},
-    {"color": YELLOW, "speed": speeds[2],   "width": 5, "height": 5, "starvation": 1000},
-    {"color": RED, "speed": speeds[4] , "width": 7, "height": 7, "starvation": 850}
+    {"color": GREEN, "speed": green_speed, "width": 2, "height": 2, "starvation": 6000},
+    {"color": DARK_GREEN, "speed": dark_green_speed , "width": 3, "height": 3, "starvation": 6000},
+    {"color": BROWN, "speed": brown_speed, "width": 3, "height": 3, "starvation": 2000},
+    {"color": YELLOW, "speed": yellow_speed,   "width": 5, "height": 5, "starvation": 1000},
+    {"color": RED, "speed": red_speed , "width": 7, "height": 7, "starvation": 850}
 ]
-
+# Update the size of all RED organisms
 def update_red_organism_size(size,all_sprites):
     for organism_data in organisms_data:
         if organism_data["color"] == RED:
@@ -645,14 +638,9 @@ def update_red_organism_size(size,all_sprites):
             #break
     for organism in all_sprites:
         if organism.color == RED:
-            #print("it runs" + str(organism))
             organism.set_size(size)
-            #all_sprites.update(organism)          
 
-            #organism.update() 
-    # Update the size of all RED organisms
-    
-
+# Get all Organism data by color
 def get_organism_data_by_color(color):
     for data in organisms_data:
         if data["color"] == color:
@@ -662,13 +650,13 @@ def get_organism_data_by_color(color):
 # this function is used to create the starting organisms
 for organism_data in organisms_data:
     if organism_data["color"] == GREEN:
-        num_green = 150
+        num_green = start_num_green
     elif organism_data["color"] == BROWN:
-        num_brown = 75
+        num_brown = start_num_brown
     elif organism_data["color"] == YELLOW:
-        num_yellow = 50
+        num_yellow = start_num_yellow
     elif organism_data["color"] == RED:
-        num_red = 10
+        num_red = start_num_red
     
     for _ in range(num_green if organism_data["color"] == GREEN else
                    num_brown if organism_data["color"] == BROWN else
@@ -706,7 +694,7 @@ while running:
             if event.user_type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
                 if event.ui_element == slider1.slider:
                     #pass
-                    print('Slider value:', event.value)
+                    #print('Slider value:', event.value)
                     update_red_organism_size(event.value, all_sprites)
 
         for button in buttons:
@@ -727,9 +715,9 @@ while running:
         all_sprites.update(all_sprites)
     for organism in all_sprites:
         color_label = convert_color_to_label(organism.color)
-        data = (organism.id, color_label, organism.speed, organism.rect.x, organism.rect.y, organism.width, organism.height, organism.starvation_count)
-        c.execute("INSERT INTO organisms VALUES (?, ?, ?, ?, ?, ?, ?, ?)", data)
-    conn.commit()          
+        #-#data = (organism.id, color_label, organism.speed, organism.rect.x, organism.rect.y, organism.width, organism.height, organism.starvation_count)
+        #-#c.execute("INSERT INTO organisms VALUES (?, ?, ?, ?, ?, ?, ?, ?)", data)
+    #-#conn.commit()          
 
     screen.fill((0, 0, 0))
     screen.blit(screen, (0, 0))
@@ -768,6 +756,6 @@ while running:
     # Update the screen
     pg.display.flip()
 
-conn.close()
+#-#conn.close()
 pg.quit()
 sys.exit()
