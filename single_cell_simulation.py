@@ -98,7 +98,8 @@ COLOR_ACTIVE = pg.Color('dodgerblue2')
 ui_theme = {
     "label": {
         "text_color": pg.Color("green"),
-        "font": pg.font.Font(None, 24)  # Set the font here, replace 'None' with a font file path if needed
+        "font": pg.font.Font(None, 10),  # Set the font here, replace 'None' with a font file path if needed
+        "text_horiz_alignment": "left" 
     }
 }
 
@@ -110,7 +111,7 @@ manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT),'theme.json', ui_theme)
 clock = pg.time.Clock()
 
 # Define a font and render the text
-font = pg.font.SysFont(None, 16)
+font = pg.font.SysFont(None, 10)
 
 # Starting Speed of the organisms
 #speeds = [1, 1, 7, 5, 10]
@@ -600,12 +601,12 @@ start_button = Button(start_button_X, button_y,  button_width, button_height, 'S
 stop_button = Button(stop_button_X, button_y,  button_width, button_height, 'Stop', RED)
 buttons = [start_button, stop_button]
 
-# Create the text labels 
-text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((530, 60), (580, 100)),
+# Create the text labels 100
+text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 60), (140, 20)),
                             text='Red Organism size',
                             manager=manager,
                             object_id="label" ) # Set the text color to green)
-text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((540, 100), (580, 180)),
+text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 100), (140, 20)),
                             text='Green Organism size',
                             manager=manager,
                             object_id="label" ) # Set the text color to green)
