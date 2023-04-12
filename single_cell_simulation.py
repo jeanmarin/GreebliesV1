@@ -41,6 +41,9 @@ import pygame_gui
 
 from pygame.locals import *
 from pygame_gui import UIManager
+from buttons_imp import Button
+from inputboxes_imp import InputBox
+from horizontal_sliders_imp import HSlider
 
 # Initialize pg
 pg.init()
@@ -360,120 +363,18 @@ def update_id_counter():
     global id_counter
     id_counter += 1
 
-# Horizontal Slider class
-class HSlider:
-    def __init__(self, x, y, w, h, start_value, value_range, manager):
-        self.slider = pygame_gui.elements.UIHorizontalSlider(
-            relative_rect=pg.Rect((x, y), (w, h)),
-            start_value=start_value,
-            value_range=value_range,
-            manager=manager
-        )
-        self.slider_value = start_value
+# callback handlers for the buttons
+def start_button_callback():
+    global started
+    started = True
 
-    def handle_event(self, event):
-        if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
-                if event.ui_element == self.slider:
-                    self.slider_value = int(event.value)
-                    #print(f"HSlider value: {self.slider_value}")
+def stop_button_callback():
+    global started
+    started = False
 
-    def update(self, time_delta):
-        self.slider.update(time_delta)
-
-    def draw(self, surface):
-        self.update(time_delta)
-
-# Input Box class
-class InputBox:
-
-    def __init__(self, x, y, w, h, text=''):
-        self.rect = pg.Rect(x, y, w, h)
-        self.color = COLOR_INACTIVE
-        self.text = text
-        self.txt_surface = font.render(text, True, self.color)
-        self.active = False
-
-    def handle_event(self, event):
-        if event.type == pg.MOUSEBUTTONDOWN:
-            # If the user clicked on the input_box rect.
-            if self.rect.collidepoint(event.pos):
-                # Toggle the active variable.
-                self.active = not self.active
-            else:
-                self.active = False
-            # Change the current color of the input box.
-            self.color = COLOR_ACTIVE if self.active else COLOR_INACTIVE
-        if event.type == pg.KEYDOWN:
-            if self.active:
-                if event.key == pg.K_RETURN:
-                    #print(self.text)
-                    new_size = int(self.text)
-                    update_red_organism_size(new_size, all_sprites)
-                    self.text = ''
-                elif event.key == pg.K_BACKSPACE:
-                    self.text = self.text[:-1]
-                else:
-                    self.text += event.unicode
-                # Re-render the text.
-                self.txt_surface = font.render(self.text, True, self.color)
-
-    def update(self):
-        # Resize the box if the text is too long.
-        width = max(200, self.txt_surface.get_width()+10)
-        self.rect.w = width
-
-    def draw(self, screen):
-        # Blit the text.
-        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
-        # Blit the rect.
-        pg.draw.rect(screen, self.color, self.rect, 2)
-
-# def __init__(self, color, x, y, width, height, text=None):
-# Button class
-class Button:
-    def __init__(self, x, y, w, h, text='', color=(255, 255, 255), font=None):
-        self.rect = pg.Rect(x, y, w, h)
-        self.color = color
-        self.text = text
-        self.font = font if font else pg.font.Font(None, 32)
-         # Use black for the initial text color since the hover state is initially False
-        self.txt_surface = self.font.render(text, True, "black")
-        self.hover = False
-        #global started
-
-    def handle_event(self, event):
-        if event.type == pg.MOUSEBUTTONDOWN:
-            if self.rect.collidepoint(event.pos):
-                # Perform the desired action
-                #print(self.text)
-                if self.text == "Start":
-                    #print("start")
-                    global started
-                    started = True
-                elif self.text == "Stop":
-                    #print("stop")
-                    # global started
-                    started = False
-                
-
-    def update(self, mouse_pos):
-        if self.rect.collidepoint(mouse_pos):
-            self.hover = True
-        else:
-            self.hover = False
-# the if than statement inline in the parameter allows for conditional behavior. The button border is red unit you hover over it then it turns white
-    def draw(self, screen):
-        # Draw the filled rectangle with the appropriate color based on hover state
-        pg.draw.rect(screen, "lightskyblue3" if self.hover else "dodgerblue2", self.rect)
-    
-        # Draw the border with the appropriate color based on hover state
-        pg.draw.rect(screen, self.color if self.hover else "red", self.rect, 2)
-    
-        # Render the text with the appropriate color based on hover state
-        self.txt_surface = self.font.render(self.text, True, "white" if self.hover else "black")
-    
-        screen.blit(self.txt_surface, (self.rect.x + (self.rect.w - self.txt_surface.get_width()) // 2,
-                                        self.rect.y + (self.rect.h - self.txt_surface.get_height()) // 2))
+def update_red_organism_size(text):
+    new_size = int(text)
+    update_red_organism_size(new_size, all_sprites)
 
 # Organism class
 class Organism(pg.sprite.Sprite):
@@ -597,8 +498,8 @@ start_button_X = GRID_WIDTH + 6 # x coordinate of the start button
 stop_button_X = GRID_WIDTH + 84 # x coordinate of the stop button
 
 # Create start and stop buttons # (self, x, y, w, h, text='', color=(255, 255, 255), font=None):
-start_button = Button(start_button_X, button_y,  button_width, button_height, 'Start', GREEN)
-stop_button = Button(stop_button_X, button_y,  button_width, button_height, 'Stop', RED)
+start_button = Button(start_button_X, button_y,  button_width, button_height, 'Start', GREEN, callback=start_button_callback)
+stop_button = Button(stop_button_X, button_y,  button_width, button_height, 'Stop', RED, callback=stop_button_callback )
 buttons = [start_button, stop_button]
 
 # Create the text labels 100
@@ -611,8 +512,9 @@ text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 100), (140, 20)
                             manager=manager,
                             object_id="label" ) # Set the text color to green)
 # Create the input boxes
-input_box1 = InputBox(755, 120, 100, 18)
-input_box2 = InputBox(755, 140, 100, 18)
+input_box1 = InputBox(755, 120, 100, 18, font, callback=update_red_organism_size)
+#input_box1 = InputBox(755, 120, 100, 18)
+input_box2 = InputBox(755, 140, 100, 18, font, callback=update_red_organism_size)
 input_boxes = [input_box1, input_box2]
 
 # Create the sliders
@@ -697,14 +599,18 @@ while running:
                     #pass
                     #print('Slider value:', event.value)
                     update_red_organism_size(event.value, all_sprites)
-
-        for button in buttons:
-            button.handle_event(event)
+        start_button.handle_event(event)
+        stop_button.handle_event(event)
+        #for button in buttons:
+        #    button.handle_event(event)
         for box in input_boxes:
             box.handle_event(event)
-
-    for button in buttons:
-        button.update(pg.mouse.get_pos())   
+    mouse_pos = pg.mouse.get_pos()
+    # Update button states
+    start_button.update(mouse_pos)
+    stop_button.update(mouse_pos)
+    #for button in buttons:
+    #    button.update(pg.mouse.get_pos())   
     for box in input_boxes:
         box.update()
 
@@ -739,8 +645,12 @@ while running:
 
     # Draw the sprites and buttons
     all_sprites.draw(screen)
+    #start_button.draw(screen)
+    #stop_button.draw(screen)
+    # Draw buttons
     start_button.draw(screen)
     stop_button.draw(screen)
+    # Draw input boxes
     for box in input_boxes:
         box.draw(screen)
     #for slider in sliders:
