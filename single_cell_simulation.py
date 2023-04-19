@@ -63,10 +63,16 @@ organism_count = 0
 id_counter = 0
 
 # Define detection distance for predator organisms
-detection_distance = 10
+detection_distance = 30
 
 # the global start variable
 started = False
+
+# define a constant for the distance threshold for red organisms to detect yellow organisms
+RED_YELLOW_DETECTION_DISTANCE = 30
+
+# define a constant for the speed of red organisms
+#RED_SPEED = 5
 
 # Delete the database file if it exists
 #-#if os.path.exists("organism_data.db"):
@@ -115,6 +121,7 @@ clock = pg.time.Clock()
 
 # Define a font and render the text
 font = pg.font.SysFont(None, 10)
+font2 = pg.font.SysFont(None, 20)
 
 # Starting Speed of the organisms
 #speeds = [1, 1, 7, 5, 10]
@@ -129,7 +136,7 @@ light_intensity = 1
 start_num_green = 150
 start_num_brown = 75
 start_num_yellow = 50
-start_num_red = 10
+start_num_red = 15
 
 # Colors
 GREEN = (0, 255, 0)
@@ -407,10 +414,41 @@ class Organism(pg.sprite.Sprite):
         # Generate a random movement vector with a magnitude equal to the organism's speed
         magnitude = self.speed
 
-        # Otherwise, generate a random direction
-        direction = random.uniform(0, 2 * math.pi)
-        dx = magnitude * math.cos(direction)
-        dy = magnitude * math.sin(direction)
+            # Check if this organism is a red organism
+        if self.color == RED:
+            #
+            # Check for nearby yellow organisms
+            # nearby_yellow_organisms = [organism for organism in all_sprites if organism.color == YELLOW and organism != self and self.rect.colliderect(organism.rect)]
+            nearby_yellow_organisms = [organism for organism in all_sprites if organism.color == YELLOW and organism != self and 
+                            math.hypot(organism.rect.centerx - self.rect.centerx, organism.rect.centery - self.rect.centery) <= 30 + self.rect.width/2 + organism.rect.width/2]
+            if nearby_yellow_organisms:
+                #print("nearby_yellow_organisms: ", nearby_yellow_organisms)
+                # Calculate the distance to the nearest yellow organism
+                distances = [(organism.rect.x - self.rect.x) ** 2 + (organism.rect.y - self.rect.y) ** 2 for organism in nearby_yellow_organisms]
+                nearest_yellow_organism = nearby_yellow_organisms[distances.index(min(distances))]
+                
+                # Calculate the movement vector towards the nearest yellow organism
+                dx = nearest_yellow_organism.rect.x - self.rect.x
+                dy = nearest_yellow_organism.rect.y - self.rect.y
+                distance = math.sqrt(dx ** 2 + dy ** 2)
+                if distance > 0:
+                    dx = dx / distance
+                    dy = dy / distance
+                magnitude = self.speed
+                dx *= magnitude
+                dy *= magnitude
+                
+            else:
+                # Generate a random movement vector with a magnitude equal to the organism's speed
+                direction = random.uniform(0, 2 * math.pi)
+                dx = self.speed * math.cos(direction)
+                dy = self.speed * math.sin(direction)
+            
+        else:
+            # Generate a random movement vector with a magnitude equal to the organism's speed
+            direction = random.uniform(0, 2 * math.pi)
+            dx = self.speed * math.cos(direction)
+            dy = self.speed * math.sin(direction)
 
         # Add the movement vector to the current position to obtain the new position
         new_x = self.rect.x + dx
@@ -421,6 +459,20 @@ class Organism(pg.sprite.Sprite):
             self.rect.x = new_x
         if 0 <= new_y <= 740:
             self.rect.y = new_y
+        # Otherwise, generate a random direction
+        # direction = random.uniform(0, 2 * math.pi)
+        # dx = magnitude * math.cos(direction)
+        # # dy = magnitude * math.sin(direction)
+
+        # # Add the movement vector to the current position to obtain the new position
+        # new_x = self.rect.x + dx
+        # new_y = self.rect.y + dy
+
+        # # Check if the new position is within the screen boundaries and update the position accordingly
+        # if 0 <= new_x <= 740:
+        #     self.rect.x = new_x
+        # if 0 <= new_y <= 740:
+        #     self.rect.y = new_y
                 
         # Check for light exposure count. If the organism is exposed to light, it will reproduce
         if self.color == GREEN or self.color == DARK_GREEN:
@@ -526,11 +578,11 @@ slider1 = HSlider(755, 160, 100, 18, 5, (1, 20), manager)
 all_sprites = pg.sprite.Group()
 
 organisms_data = [
-    {"color": GREEN, "speed": green_speed, "width": 2, "height": 2, "starvation": 6000},
-    {"color": DARK_GREEN, "speed": dark_green_speed , "width": 3, "height": 3, "starvation": 6000},
-    {"color": BROWN, "speed": brown_speed, "width": 3, "height": 3, "starvation": 2000},
-    {"color": YELLOW, "speed": yellow_speed,   "width": 5, "height": 5, "starvation": 1000},
-    {"color": RED, "speed": red_speed , "width": 7, "height": 7, "starvation": 850}
+    {"color": GREEN, "speed": green_speed, "width": 2, "height": 2, "starvation": 6000, "radar": 10},
+    {"color": DARK_GREEN, "speed": dark_green_speed , "width": 3, "height": 3, "starvation": 6000, "radar": 10},
+    {"color": BROWN, "speed": brown_speed, "width": 3, "height": 3, "starvation": 2000, "radar": 10},
+    {"color": YELLOW, "speed": yellow_speed,   "width": 5, "height": 5, "starvation": 1000, "radar": 15},
+    {"color": RED, "speed": red_speed , "width": 7, "height": 7, "starvation": 850, "radar": 20}
 ]
 # Update the size of all RED organisms
 def update_red_organism_size(size,all_sprites):
@@ -570,6 +622,12 @@ for organism_data in organisms_data:
                                   organism_data["height"], organism_data["starvation"], id_counter))
         num_sprites = len(all_sprites)
         all_organisms_text = font.render(f"Organism Count: {num_sprites}", True, WHITE)
+        red_organisms_text = font.render(f"Red Count: {num_sprites}", True, WHITE)
+        green_organisms_text = font.render(f"Green Count: {num_sprites}", True, WHITE)
+        yellow_organisms_text = font.render(f"Yellow Count: {num_sprites}", True, WHITE)
+        brown_organisms_text = font.render(f"Brown Count: {num_sprites}", True, WHITE)
+
+
 
 # this function is used to convert the color to a label
 def convert_color_to_label(color):
@@ -630,10 +688,19 @@ while running:
     screen.blit(screen, (0, 0))
 
     if len(all_sprites) == 0: # Stop the game if there are no more sprites
-        #global started
         started = False
         running = False
+        print("Game Over! Nothing left")
         text_surface = font.render(f"Total Organisms: Game Over!", True, WHITE)
+    elif len([organism for organism in all_sprites if organism.color == RED]) == 0 \
+        and len([organism for organism in all_sprites if organism.color == YELLOW]) == 0 \
+        and len([organism for organism in all_sprites if organism.color == BROWN]) == 0 \
+        and len([organism for organism in all_sprites if organism.color == WHITE]) == 0:
+        started = False
+        running = False
+        print("Game Over! Only plant organisms left!")
+        text_surface = font.render(f"Total Organisms: Game Over!", True, WHITE)
+
 
     # Draw the gray bar
     gray_bar_rect = pg.Rect(GRID_WIDTH, 0, SCREEN_WIDTH - GRID_WIDTH, SCREEN_HEIGHT)
@@ -657,12 +724,25 @@ while running:
     #    slider.draw(screen, time_delta)
     #slider1.draw(screen)
 
-    screen.blit(all_organisms_text, (760, 720))
+    screen.blit(all_organisms_text, (760, 640))
+    screen.blit(red_organisms_text, (760, 660))
+    screen.blit(green_organisms_text, (760, 680))
+    screen.blit(yellow_organisms_text, (760, 700))
+    screen.blit(brown_organisms_text, (760, 720))
 
     # Update the count of organisms
     num_sprites = len(all_sprites)
-    all_organisms_text = font.render(f"Organism Count: {num_sprites}", True, WHITE)
-    text_surface = font.render(f"Total Organisms: {num_sprites}", True, WHITE)
+    # Count number of each color
+    red_count = len([organism for organism in all_sprites if organism.color == RED])
+    yellow_count = len([organism for organism in all_sprites if organism.color == YELLOW])
+    green_count = len([organism for organism in all_sprites if organism.color == GREEN or organism.color == DARK_GREEN])
+    brown_count = len([organism for organism in all_sprites if organism.color == BROWN])
+    all_organisms_text = font2.render(f"Organism Count: {num_sprites}", True, WHITE)
+    red_organisms_text = font2.render(f"Red Count: {red_count}", True, WHITE)
+    green_organisms_text = font2.render(f"Green Count: {green_count}", True, WHITE)
+    yellow_organisms_text = font2.render(f"Yellow Count: {yellow_count}", True, WHITE)
+    brown_organisms_text = font2.render(f"Brown Count: {brown_count}", True, WHITE)
+    #text_surface = font2.render(f"Total Organisms: {num_sprites}", True, WHITE)
 
     # Update the screen
     pg.display.flip()
