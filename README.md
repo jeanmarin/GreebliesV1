@@ -35,5 +35,4 @@ To Do:
 
 ** - baseline code established = April 7th 2023. 
 
-https://epydoc.sourceforge.net/manual-fields.html#module-metadata-variables
 '''
