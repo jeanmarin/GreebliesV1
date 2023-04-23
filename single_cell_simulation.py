@@ -103,6 +103,8 @@ screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 COLOR_INACTIVE = pg.Color('lightskyblue3')
 COLOR_ACTIVE = pg.Color('dodgerblue2')
 
+
+
 # Create a UI theme dictionary with the desired text color and font
 ui_theme = {
     "label": {
@@ -115,6 +117,15 @@ ui_theme = {
 # Create the UI Manager instance, pulling some parameters from the theme.json file
 # If you upate the theme.json file it will update the UI Manager's theme dynamically
 manager = UIManager((SCREEN_WIDTH, SCREEN_HEIGHT),'theme.json', ui_theme)
+
+# Create a new UI manager for the Game Over screen
+game_over_manager = pygame_gui.UIManager((200, 300))
+
+
+# Create a new UI element to display the Game Over message
+#game_over_text = pygame_gui.elements.ui_text.UITextEntryLine(relative_rect=pg.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), text="Game Over!", manager=game_over_manager)
+game_over_text = "game over!"
+
 
 # Create a clock to keep track of time
 clock = pg.time.Clock()
@@ -134,8 +145,8 @@ red_speed = 10
 # Starting light intensity
 light_intensity = 1
 start_num_green = 150
-start_num_brown = 75
-start_num_yellow = 50
+start_num_brown = 0
+start_num_yellow = 0
 start_num_red = 15
 
 # Colors
@@ -691,7 +702,17 @@ while running:
         started = False
         running = False
         print("Game Over! Nothing left")
-        text_surface = font.render(f"Total Organisms: Game Over!", True, WHITE)
+        # Display the Game Over screen
+        #game_over_text = pygame_gui.elements.ui_text.UITextEntryLine(relative_rect=pg.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), text="Game Over! Nothing left", manager=game_over_manager)
+        game_over_running = True
+        while game_over_running:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    game_over_running = False
+            game_over_manager.update(time_delta)
+            game_over_manager.draw_ui(screen)
+            pg.display.flip()
+    # end game if only plants left        
     elif len([organism for organism in all_sprites if organism.color == RED]) == 0 \
         and len([organism for organism in all_sprites if organism.color == YELLOW]) == 0 \
         and len([organism for organism in all_sprites if organism.color == BROWN]) == 0 \
@@ -699,7 +720,17 @@ while running:
         started = False
         running = False
         print("Game Over! Only plant organisms left!")
-        text_surface = font.render(f"Total Organisms: Game Over!", True, WHITE)
+        # Display the Game Over screen
+        game_over_text = font2.render(f"Game Over! Only plant organisms left!", True, WHITE)
+        #game_over_text = pygame_gui.elements.ui_text.UITextEntryLine(relative_rect=pg.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), text="Game Over! Only plant organisms left!", manager=game_over_manager)
+        game_over_running = True
+        while game_over_running:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    game_over_running = False
+            game_over_manager.update(time_delta)
+            game_over_manager.draw_ui(screen)
+            pg.display.flip()
 
 
     # Draw the gray bar
@@ -745,6 +776,29 @@ while running:
     #text_surface = font2.render(f"Total Organisms: {num_sprites}", True, WHITE)
 
     # Update the screen
+    pg.display.flip()
+
+# Create a new surface for the game over screen
+game_over_surface = pg.Surface((300, 400))
+
+# Loop to display the Game Over screen until the user closes it
+game_over_running = True
+while game_over_running:
+    # Process events for the Game Over screen
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            game_over_running = False
+    # Update the UI manager for the Game Over screen
+    game_over_manager.update(time_delta)
+    # Draw the UI elements for the Game Over screen
+    game_over_manager.draw_ui(game_over_surface)
+
+    game_over_text = font2.render(f"Game Over! Only plant organisms left!", True, WHITE)
+        
+    game_over_surface.blit(game_over_text, (350, 350))
+    # Blit the game over surface onto the main display surface
+    screen.blit(game_over_surface, (0, 0))
+    # Update the display
     pg.display.flip()
 
 #-#conn.close()
