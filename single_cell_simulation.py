@@ -145,8 +145,8 @@ red_speed = 10
 # Starting light intensity
 light_intensity = 1
 start_num_green = 150
-start_num_brown = 0
-start_num_yellow = 0
+start_num_brown = 80
+start_num_yellow = 30
 start_num_red = 15
 
 # Colors

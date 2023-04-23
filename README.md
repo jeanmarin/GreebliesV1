@@ -26,12 +26,16 @@ The organisms are stored in a database. not ready yet. the information is dumped
 To Do:
 ******
 1. Add a GUI to adjust the number of organisms, the speed of the organisms, and the light intensity.
-2. Add a GUI to display the number of organisms of each type.
-3. Create a record of each even for each organism in the simulation in the database.
-4. Hook up the database to BI reporting dashboard. for stats at the of the simulation.
+2. Add GAME OVER dialog with reason code. 
+3. Create a record of each even for each organism in the simulation in the database. - commented out for now
+4. Hook up the database to BI reporting dashboard. for stats at the of the simulation. - commented out for now
 5. Create various hooks in the code to link external ML or AI to evolve the organisms' behavior each generation of the game.
 6. Move the simulation to cloud hosted server with a web front end.
 7. Increase the model to gargantuan proportions for the simulation. for multiple people to interact with. 
+
+******
+V1.23-4
+Displays the individual numbers of organisms of each type.
 
 ** - baseline code established = April 7th 2023. 
 
