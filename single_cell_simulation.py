@@ -12,7 +12,7 @@
 * The organisms are stored in a database. not ready yet. the information is dumped but needs ferter refinement.
 * To Do:
 * 1. Add a GUI to adjust the number of organisms, the speed of the organisms, and the light intensity.
-* 2. Add a GUI to display the number of organisms of each type.
+* 2. 
 * 3. create a record of each even for each organism in the simulation in the database.
 * 4. Hook up the database to BI reporting dashboard. for stats at the of the simulation.
 * 5. create various hooks in the code to link exteral ML or AI to evolve the organisms' behavior each generation of the game.
@@ -143,11 +143,17 @@ yellow_speed = 5
 red_speed = 10
 
 # Starting light intensity
-light_intensity = 1
+light_intensity = .1
 start_num_green = 150
 start_num_brown = 80
 start_num_yellow = 30
 start_num_red = 15
+#global red_organism_size
+red_organism_size = 5
+
+def set_light_intensity(value):
+    global light_intensity
+    light_intensity = value
 
 # Colors
 GREEN = (0, 255, 0)
@@ -390,9 +396,11 @@ def stop_button_callback():
     global started
     started = False
 
-def update_red_organism_size(text):
+def set_red_organism_size(text):
     new_size = int(text)
     update_red_organism_size(new_size, all_sprites)
+    global red_organism_size
+    red_organism_size = text
 
 # Organism class
 class Organism(pg.sprite.Sprite):
@@ -566,22 +574,24 @@ stop_button = Button(stop_button_X, button_y,  button_width, button_height, 'Sto
 buttons = [start_button, stop_button]
 
 # Create the text labels 100
-text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 60), (140, 20)),
+text_1 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 120), (140, 20)),
                             text='Red Organism size',
                             manager=manager,
                             object_id="label" ) # Set the text color to green)
-text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 100), (140, 20)),
+text_2 = pygame_gui.elements.UILabel(relative_rect=pg.Rect((755, 60), (140, 20)),
                             text='Green Organism size',
                             manager=manager,
                             object_id="label" ) # Set the text color to green)
 # Create the input boxes
-input_box1 = InputBox(755, 120, 100, 18, font, callback=update_red_organism_size)
+input_box1 = InputBox(755, 80, 10, 18, font, callback=set_red_organism_size)
 #input_box1 = InputBox(755, 120, 100, 18)
-input_box2 = InputBox(755, 140, 100, 18, font, callback=update_red_organism_size)
+input_box2 = InputBox(755, 140, 10, 18, font, callback=set_red_organism_size)
 input_boxes = [input_box1, input_box2]
 
 # Create the sliders
 slider1 = HSlider(755, 160, 100, 18, 5, (1, 20), manager)
+slider2 = HSlider(x=755, y=180, w=100, h=18, start_value=light_intensity, value_range=(0.1, 2), manager=manager, callback=set_light_intensity)
+#slider2 = HSlider(755, 180, 100, 18, 5, (.01, 2), manager)
 #slider2 = HSlider(755, 180, 100, 18, 25, (0, 50), manager)
 #sliders = [slider1, slider2]
 
@@ -601,6 +611,8 @@ def update_red_organism_size(size,all_sprites):
         if organism_data["color"] == RED:
             organism_data["width"] = size
             organism_data["height"] = size
+            global red_organism_size
+            red_organism_size = size
             #break
     for organism in all_sprites:
         if organism.color == RED:
@@ -637,6 +649,8 @@ for organism_data in organisms_data:
         green_organisms_text = font.render(f"Green Count: {num_sprites}", True, WHITE)
         yellow_organisms_text = font.render(f"Yellow Count: {num_sprites}", True, WHITE)
         brown_organisms_text = font.render(f"Brown Count: {num_sprites}", True, WHITE)
+        light_intensity_text = font.render(f"Light Intensity: {light_intensity}", True, WHITE)
+        red_organism_size_text = font.render(f"Red Organism Size: {red_organism_size}", True, WHITE)
 
 
 
@@ -668,6 +682,11 @@ while running:
                     #pass
                     #print('Slider value:', event.value)
                     update_red_organism_size(event.value, all_sprites)
+                elif event.ui_element == slider2.slider:
+                    #pass
+                    #print('Slider value:', event.value)
+                    set_light_intensity(event.value)
+
         start_button.handle_event(event)
         stop_button.handle_event(event)
         #for button in buttons:
@@ -760,6 +779,8 @@ while running:
     screen.blit(green_organisms_text, (760, 680))
     screen.blit(yellow_organisms_text, (760, 700))
     screen.blit(brown_organisms_text, (760, 720))
+    screen.blit(light_intensity_text, (858, 183)) #x=755, y=180
+    screen.blit(red_organism_size_text, (858, 163)) #755, 160
 
     # Update the count of organisms
     num_sprites = len(all_sprites)
@@ -773,6 +794,8 @@ while running:
     green_organisms_text = font2.render(f"Green Count: {green_count}", True, WHITE)
     yellow_organisms_text = font2.render(f"Yellow Count: {yellow_count}", True, WHITE)
     brown_organisms_text = font2.render(f"Brown Count: {brown_count}", True, WHITE)
+    light_intensity_text = font2.render(f"{light_intensity:.4f}", True, WHITE)
+    red_organism_size_text = font2.render(f"{red_organism_size}", True, WHITE)
     #text_surface = font2.render(f"Total Organisms: {num_sprites}", True, WHITE)
 
     # Update the screen
