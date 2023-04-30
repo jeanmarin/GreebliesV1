@@ -71,6 +71,12 @@ started = False
 # define a constant for the distance threshold for red organisms to detect yellow organisms
 RED_YELLOW_DETECTION_DISTANCE = 30
 
+# define a constant for the reproduction threshold for all organisms
+BROWN_REPRODUCTION_THRESHOLD = 3 
+YELLOW_REPRODUCTION_THRESHOLD = 4
+RED_REPRODUCTION_THRESHOLD = 5
+
+
 # define a constant for the speed of red organisms
 #RED_SPEED = 5
 
@@ -99,7 +105,7 @@ RED_YELLOW_DETECTION_DISTANCE = 30
 
 # display screen configuration
 pg.display.set_caption("Greeblies! - Single Cell Simulation Game")
-screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.RESIZABLE)
 COLOR_INACTIVE = pg.Color('lightskyblue3')
 COLOR_ACTIVE = pg.Color('dodgerblue2')
 
@@ -154,6 +160,12 @@ red_organism_size = 5
 def set_light_intensity(value):
     global light_intensity
     light_intensity = value
+
+def set_yellow_reproduction_threshold(new_value):
+    global REPRODUCTION_THRESHOLD
+    REPRODUCTION_THRESHOLD = new_value
+
+
 
 # Colors
 GREEN = (0, 255, 0)
@@ -591,6 +603,7 @@ input_boxes = [input_box1, input_box2]
 # Create the sliders
 slider1 = HSlider(755, 160, 100, 18, 5, (1, 20), manager)
 slider2 = HSlider(x=755, y=180, w=100, h=18, start_value=light_intensity, value_range=(0.1, 2), manager=manager, callback=set_light_intensity)
+slider3 = HSlider(x=755, y=200, w=100, h=18, start_value=YELLOW_REPRODUCTION_THRESHOLD, value_range=(2, 5), manager=manager, callback=set_light_intensity)
 #slider2 = HSlider(755, 180, 100, 18, 5, (.01, 2), manager)
 #slider2 = HSlider(755, 180, 100, 18, 25, (0, 50), manager)
 #sliders = [slider1, slider2]
@@ -664,6 +677,26 @@ def convert_color_to_label(color):
             return value
     return None
 
+
+def update_ui_positions():
+    '''
+    This function is used to update the positions of the UI elements
+    '''
+    global slider1, slider2, slider3, all_organisms_text
+    slider1_x = SCREEN_WIDTH - 200
+    slider1_y = SCREEN_HEIGHT - 400
+    slider2_x = SCREEN_WIDTH - 200
+    slider2_y = SCREEN_HEIGHT - 380
+    slider3_x = SCREEN_WIDTH - 200
+    slider3_y = SCREEN_HEIGHT - 360
+
+    slider1.set_position(slider1_x, slider1_y)
+    slider2.set_position(slider2_x, slider2_y)
+    slider3.set_position(slider3_x, slider3_y)
+
+    all_organisms_text_rect = all_organisms_text.get_rect()
+    all_organisms_text_rect.topleft = (slider1_x, slider1_y - 40)
+
 # Game loop
 running = True
 
@@ -686,6 +719,21 @@ while running:
                     #pass
                     #print('Slider value:', event.value)
                     set_light_intensity(event.value)
+                elif event.ui_element == slider3.slider:    
+                    set_yellow_reproduction_threshold(event.value)
+
+
+    # Update the global variable when the slider's value changes
+  
+
+
+#
+        # Handle window resizing
+        if event.type == pg.VIDEORESIZE:
+            SCREEN_WIDTH, SCREEN_HEIGHT = event.w, event.h
+            screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.RESIZABLE)
+            update_ui_positions()
+    
 
         start_button.handle_event(event)
         stop_button.handle_event(event)
