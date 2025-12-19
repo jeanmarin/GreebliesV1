@@ -1,0 +1,5 @@
+pygame-ce>=2.4.0
+pygame_gui>=0.6.9
+pytest>=7.0
+
+

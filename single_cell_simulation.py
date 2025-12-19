@@ -27,20 +27,15 @@ https://pygame-gui.readthedocs.io/en/latest/index.html
 '''
 #-# this comment block is for all the db stuff.
 
-# import tkinter as tk
 import pygame as pg
-#-#import os
-#from PIL import Image
 import random
-from pygame.locals import *
 import sys
-#import time
 import math
 import pygame_gui
-#-#import sqlite3
 
-from pygame.locals import *
 from pygame_gui import UIManager
+
+from greeblies.utils import convert_color_to_label
 from buttons_imp import Button
 from inputboxes_imp import InputBox
 from horizontal_sliders_imp import HSlider
@@ -158,12 +153,14 @@ start_num_red = 15
 red_organism_size = 5
 
 def set_light_intensity(value):
+    """Callback to update global light intensity from a UI control."""
     global light_intensity
     light_intensity = value
 
 def set_yellow_reproduction_threshold(new_value):
-    global REPRODUCTION_THRESHOLD
-    REPRODUCTION_THRESHOLD = new_value
+    """Callback to update global reproduction threshold for yellow organisms."""
+    global YELLOW_REPRODUCTION_THRESHOLD
+    YELLOW_REPRODUCTION_THRESHOLD = int(new_value)
 
 
 
@@ -175,13 +172,6 @@ YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (128, 128, 128)
-
-# Define a function to make the movenment vectro random
-def random_movement_vector(speed):
-    direction = random.uniform(0, 2 * math.pi)
-    dx = speed * math.cos(direction)
-    dy = speed * math.sin(direction)
-    return dx, dy
 
 # Collision handlers to handle each typ of collision between organisms
 def handle_green_green_collision(organism1, organism2):
@@ -401,23 +391,32 @@ def update_id_counter():
 
 # callback handlers for the buttons
 def start_button_callback():
+    """Start/pause toggle callback: start simulation updates."""
     global started
     started = True
 
 def stop_button_callback():
+    """Start/pause toggle callback: stop simulation updates."""
     global started
     started = False
 
 def set_red_organism_size(text):
-    new_size = int(text)
+    """Parse input text and update the size of red organisms."""
+    try:
+        new_size = int(text)
+    except (TypeError, ValueError):
+        return
     update_red_organism_size(new_size, all_sprites)
     global red_organism_size
-    red_organism_size = text
+    red_organism_size = new_size
 
 # Organism class
 class Organism(pg.sprite.Sprite):
-    
-    # This class represents an organism. It derives from the "Sprite" class in Pygame.
+    """A single organism in the simulation.
+
+    This derives from `pygame.sprite.Sprite` and updates movement, reproduction,
+    starvation, and collision behavior based on its `color`.
+    """
     def __init__(self, color, speed, x, y, width, height, starvation_count, OrganismID):
         super().__init__()
         self.image = pg.Surface([width, height])
@@ -439,7 +438,7 @@ class Organism(pg.sprite.Sprite):
         self.id = id_counter
         update_id_counter()
     
-    # Update the organism's position        
+    # Update the organism's position
     def update(self, all_sprites):
         
         # Generate a random movement vector with a magnitude equal to the organism's speed
@@ -665,17 +664,6 @@ for organism_data in organisms_data:
         light_intensity_text = font.render(f"Light Intensity: {light_intensity}", True, WHITE)
         red_organism_size_text = font.render(f"Red Organism Size: {red_organism_size}", True, WHITE)
 
-
-
-# this function is used to convert the color to a label
-def convert_color_to_label(color):
-    color_dict = {(0, 255, 0): "GREEN", (0, 100, 0): "DARK_GREEN", (139, 69, 19): "BROWN", 
-                  (255, 255, 0): "YELLOW", (255, 0, 0): "RED", (255, 255, 255): "WHITE",
-                  (128, 128, 128): "GRAY"}
-    for key, value in color_dict.items():
-        if key == color:
-            return value
-    return None
 
 
 def update_ui_positions():

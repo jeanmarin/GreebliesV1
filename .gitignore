@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+
+.venv/
+
+# Local DB + journals
+*.db-journal
+
+# Bundled UI artifacts (keep out of git; these are large binaries)
+user_interface/
+user_interface.mpy
+
+
